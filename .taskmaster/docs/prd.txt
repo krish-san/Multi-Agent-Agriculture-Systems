@@ -6,12 +6,12 @@
 Build an agentic AI-powered agricultural advisory system for India that provides hyperlocal, multilingual, and offline-capable farming guidance through a multi-agent architecture. The system addresses critical agricultural challenges including crop selection, pest management, financial planning, irrigation scheduling, market timing, harvest planning, and input material advisory.
 
 ### Key Objectives
-- Provide autonomous, intelligent farming advice through 7 specialized AI agents
-- Support offline functionality for areas with limited internet connectivity
+- Provide autonomous, intelligent farming advice through 7 specialized AI agents via web interface
 - Deliver multilingual support (Hindi/English/code-switched) for diverse farming communities
 - Integrate satellite data for hyperlocal insights without requiring IoT infrastructure
 - Ensure explainable AI outputs with cited sources and confidence scores
-- Enable multiple interaction channels (mobile app, web dashboard, WhatsApp, SMS)
+- Enable web-based interaction with potential WhatsApp integration for MVP
+- Focus on core functionality demonstration rather than production scalability
 
 ## Problem Statement
 
@@ -23,12 +23,12 @@ Build an agentic AI-powered agricultural advisory system for India that provides
 5. **Decision Complexity**: Multiple interdependent factors affect farming decisions
 6. **Economic Constraints**: Farmers need cost-effective solutions with clear ROI
 
-### Target Impact
-- Improve crop yields by 15-25% through optimized decision-making
-- Reduce input costs by 10-20% via better resource planning
-- Decrease crop losses by 20-30% through early pest/disease detection
-- Increase farmer income by 15-35% through better market timing
-- Enhance sustainability through precision agriculture practices
+### Target Impact (MVP Goals)
+- Demonstrate core AI agent functionality through web interface
+- Validate user interaction patterns and query types
+- Test multilingual query processing and response generation
+- Prove satellite data integration value for agricultural decisions
+- Establish foundation for future mobile app and production deployment
 
 ## Target Users
 
@@ -220,31 +220,30 @@ Build an agentic AI-powered agricultural advisory system for India that provides
 
 ## Technical Architecture
 
-### System Architecture Components
+### System Architecture Components (Web MVP)
 
 #### 1. Frontend Layer
-- **Mobile App**: Flutter-based cross-platform application
-- **Web Dashboard**: Streamlit-based responsive interface
-- **WhatsApp Bot**: Twilio API integration for messaging
-- **Voice Interface**: Local speech recognition using Whisper
+- **Web Dashboard**: Streamlit/React-based responsive interface
+- **Chat Interface**: Real-time query processing with WebSocket support
+- **Optional WhatsApp Integration**: Basic bot for query forwarding to web system
 
 #### 2. Backend Services
 - **Agent Orchestration**: LangChain/CrewAI framework
-- **Local LLM**: Fine-tuned Llama 3 via Llama.cpp
-- **Database**: SQLite for offline data, PostgreSQL for cloud sync
+- **Local/Cloud LLM**: Fine-tuned Llama 3 or API-based models (Gemini, Claude)
+- **Database**: SQLite for development, PostgreSQL for deployment
 - **API Gateway**: FastAPI for service coordination
 
-#### 3. Data Infrastructure
+#### 3. Data Infrastructure  
 - **Vector Store**: FAISS for document retrieval
 - **Satellite Data**: Integration with ISRO Bhuvan and USGS
-- **Real-time APIs**: Weather, market prices, government schemes
-- **Offline Cache**: Local storage for essential datasets
+- **Public APIs**: Weather, market prices, government schemes
+- **Basic Caching**: Session-based storage for user queries
 
-#### 4. AI/ML Components
-- **Language Models**: Local fine-tuned models for agricultural domain
-- **Computer Vision**: MobileNet for image classification
-- **Time Series**: LSTM/ARIMA for forecasting
-- **Optimization**: PuLP for resource allocation
+#### 4. AI/ML Components (MVP)
+- **Language Models**: API-based or lightweight local models
+- **Basic Computer Vision**: Simple image processing for pest identification
+- **Statistical Models**: Basic forecasting using scikit-learn
+- **Rule-based Logic**: Simple optimization algorithms
 
 ### Satellite Data Integration Workflow
 
@@ -297,7 +296,7 @@ Build an agentic AI-powered agricultural advisory system for India that provides
 
 ## User Experience Design
 
-### User Interaction Flows
+### User Interaction Flows (Web MVP)
 
 #### 1. New User Onboarding
 1. Language selection (Hindi/English)
@@ -306,35 +305,23 @@ Build an agentic AI-powered agricultural advisory system for India that provides
 4. Tutorial on using the system
 5. Initial assessment and recommendations
 
-#### 2. Daily Query Flow
-1. Voice/text input in preferred language
+#### 2. Query Flow
+1. Text input in preferred language via web chat interface
 2. Automatic intent recognition and routing
 3. Real-time processing with progress indicators
-4. Multi-modal output (text, charts, audio)
+4. Multi-modal output (text, charts, visualizations)
 5. Follow-up questions and clarifications
-6. Action items and reminders
+6. Action items and recommendations
 
-#### 3. WhatsApp Integration Flow
-1. Farmer sends message/photo to bot number
-2. Automatic language detection
-3. Query processing and agent routing
-4. Response formatting for messaging platform
-5. Follow-up recommendations and alerts
-
-### User Interface Requirements
-
-#### Mobile App Features
-- **Dashboard**: Overview of farm status and alerts
-- **Chat Interface**: Natural language query input
-- **Camera Integration**: Photo capture for pest/crop identification
-- **Offline Mode**: Clear indicators and cached responses
-- **Notifications**: Timely alerts and reminders
+### User Interface Requirements (Web MVP)
 
 #### Web Dashboard Features
-- **Analytics**: Comprehensive farm analytics and trends
-- **Planning Tools**: Seasonal planning and calendar views
-- **Data Export**: Report generation and data downloads
-- **Multi-farm Management**: For extension officers and advisors
+- **Chat Interface**: Central query input with natural language processing
+- **Multi-Agent Display**: Visual representation of agent routing and responses
+- **Satellite Visualization**: NDVI and other satellite data overlays
+- **Analytics Dashboard**: Basic farm insights and recommendation history
+- **Language Toggle**: Switch between Hindi and English interface
+- **Export Functionality**: Download recommendations and analysis reports
 
 ## Data Requirements
 
@@ -436,123 +423,102 @@ Build an agentic AI-powered agricultural advisory system for India that provides
 - **Market Penetration**: Percentage of target farmer population reached
 - **Partnership Growth**: Number of government/NGO collaborations
 
-## Implementation Roadmap
+## Implementation Roadmap (MVP Focus)
 
-### Phase 1: Core System (Months 1-6)
+### Phase 1: Core MVP Development (Months 1-6)
 #### Deliverables
-- Router agent and 2 core agents (Crop Selection, Pest Management)
-- Basic mobile app with Hindi/English support
-- Offline data infrastructure and sync mechanism
-- Integration with primary government data sources
+- Web dashboard with basic chat interface
+- Router agent and 3 core agents (Crop Selection, Pest Forecaster, Irrigation)
+- Basic multilingual support (Hindi/English)
+- Satellite data integration proof-of-concept
+- Simple recommendation system
 
 #### Key Milestones
-- MVP with basic query handling (Month 2)
-- Pest identification with 80% accuracy (Month 4)
-- 100 farmer pilot program (Month 5)
-- Performance optimization and testing (Month 6)
+- Agent orchestration framework setup (Month 2)
+- Basic web interface functional (Month 3)
+- First agent responses working (Month 4)
+- Satellite data visualization (Month 5)
+- Internal testing and validation (Month 6)
 
-### Phase 2: Enhanced Features (Months 7-12)
+### Phase 2: MVP Refinement and Testing (Months 7-12)
 #### Deliverables
-- All 7 agents fully operational
-- WhatsApp bot integration
-- Satellite data processing pipeline
-- Web dashboard for extension officers
+- Complete 7-agent system
+- Enhanced web interface with analytics
+- Improved query processing and responses
+- Basic WhatsApp integration
+- Documentation and user guides
 
 #### Key Milestones
-- Multi-agent coordination working (Month 8)
-- Satellite data integration complete (Month 10)
+- All agents operational (Month 8)
+- User testing with 50-100 farmers (Month 9)
+- Performance optimization (Month 10)
+- WhatsApp bot integration (Month 11)
+- MVP deployment ready (Month 12)
+
+### Future Phases (Post-MVP)
+- Mobile app development
+- Production-ready infrastructure  
+- Advanced ML models and fine-tuning
+- Large-scale deployment and optimization
 - 1000 farmer beta program (Month 11)
 - Full feature testing and refinement (Month 12)
 
-### Phase 3: Scale and Optimization (Months 13-18)
-#### Deliverables
-- Regional language support expansion
-- Advanced analytics and reporting
-- API ecosystem for third-party integrations
-- Enterprise features for large organizations
-
-#### Key Milestones
-- 10,000 active users (Month 15)
-- Government partnership agreements (Month 16)
-- Revenue model implementation (Month 17)
-- Performance optimization for scale (Month 18)
-
-### Phase 4: Expansion and Innovation (Months 19-24)
-#### Deliverables
-- AI model improvements and fine-tuning
-- IoT integration capabilities
-- Blockchain for supply chain tracking
-- Machine learning model marketplace
-
-#### Key Milestones
-- 50,000 active farmers (Month 21)
-- International market exploration (Month 22)
-- Advanced AI capabilities launch (Month 23)
-- Sustainability and impact measurement (Month 24)
-
-## Resource Requirements
+## Resource Requirements (MVP)
 
 ### Development Team
-#### Core Team (15-20 people)
-- **Project Manager**: Overall coordination and stakeholder management
-- **AI/ML Engineers (4-5)**: Agent development and model training
-- **Backend Developers (3-4)**: API and system architecture
-- **Frontend Developers (2-3)**: Mobile and web interface
-- **Data Engineers (2-3)**: Data pipeline and satellite integration
-- **DevOps Engineers (2)**: Infrastructure and deployment
-- **UX/UI Designer**: User experience design
-- **Domain Expert**: Agricultural knowledge and validation
+#### Core Team (8-10 people)
+- **Project Manager**: Overall coordination 
+- **AI/ML Engineers (2-3)**: Agent development and integration
+- **Backend Developers (2)**: API and system architecture
+- **Frontend Developer (1)**: Web interface development
+- **Data Engineer (1)**: Data pipeline and satellite integration
+- **DevOps Engineer (1)**: Basic infrastructure and deployment
+- **Domain Expert**: Agricultural knowledge validation
 
-#### Specialized Roles
-- **Linguist**: Multilingual support and NLP
-- **GIS Specialist**: Satellite data processing
-- **Agricultural Scientist**: Domain validation and accuracy
-- **Security Specialist**: Data protection and compliance
+#### Part-time/Consulting Roles
+- **UX/UI Designer**: Interface design and user experience
+- **Agricultural Scientist**: Domain validation
+- **Linguist**: Multilingual support optimization
 
-### Technology Infrastructure
+### Technology Infrastructure (MVP)
 #### Development Environment
-- **Cloud Services**: AWS/Azure for development and testing
-- **CI/CD Pipeline**: Automated testing and deployment
-- **Version Control**: Git with branch protection and code review
-- **Project Management**: Agile tools for sprint management
+- **Cloud Services**: Basic AWS/GCP tier for development
+- **Version Control**: Git with simple workflow
+- **Database**: PostgreSQL for development, SQLite for testing
 
-#### Production Infrastructure
-- **Edge Computing**: Regional deployment for reduced latency
-- **CDN**: Content delivery for satellite imagery and static assets
+#### MVP Deployment
+- **Web Hosting**: Simple cloud deployment (Heroku/Vercel)
+- **API Services**: Basic FastAPI deployment
+- **Storage**: Simple file storage for satellite data cache
+- **Monitoring**: Basic logging and error tracking
 - **Monitoring**: Comprehensive system and application monitoring
 - **Backup**: Automated backup and disaster recovery
 
-### Budget Estimates
-#### Development Costs (Phase 1-2)
-- **Personnel**: $800K - $1.2M (18 months)
-- **Infrastructure**: $100K - $150K (cloud services, tools)
-- **Data Licensing**: $50K - $100K (satellite data, commercial APIs)
-- **Testing and Validation**: $50K - $75K (pilot programs, user research)
+### Budget Estimates (MVP - 12 months)
+#### Development Costs
+- **Team Salaries**: $400,000 (8-10 people for 12 months)
+- **Cloud Infrastructure**: $12,000 (development and basic deployment)
+- **Software Licenses**: $6,000 (development tools and APIs)
+- **Data Sources**: $8,000 (API access and satellite data)
 
-#### Operational Costs (Annual)
-- **Infrastructure**: $200K - $300K (servers, data storage, APIs)
-- **Data Services**: $100K - $150K (satellite feeds, weather APIs)
-- **Support and Maintenance**: $150K - $200K (ongoing development)
-- **Marketing and Outreach**: $100K - $150K (farmer education, partnerships)
+#### Total MVP Budget: ~$430,000
 
-## Risk Assessment and Mitigation
+## Risk Assessment and Mitigation (MVP Focused)
 
 ### Technical Risks
 #### High Priority
-1. **AI Model Accuracy**: Risk of incorrect recommendations leading to crop losses
-   - **Mitigation**: Extensive testing, confidence scoring, human expert validation
-2. **Data Quality**: Inconsistent or outdated source data affecting decisions
-   - **Mitigation**: Multiple data sources, quality checks, real-time validation
-3. **Offline Functionality**: System failures in low-connectivity areas
-   - **Mitigation**: Robust caching, local processing, graceful degradation
+1. **Agent Integration Complexity**: Difficulty coordinating multiple agents
+   - **Mitigation**: Start with 3 agents, expand gradually, use proven frameworks
+2. **Satellite Data Processing**: Complex geospatial analysis requirements
+   - **Mitigation**: Use existing libraries, start with basic visualizations
+3. **Multilingual NLP**: Handling Hindi/English code-switching accurately
+   - **Mitigation**: Use existing models, focus on basic translation first
 
 #### Medium Priority
-1. **Scalability**: System performance under high user load
-   - **Mitigation**: Load testing, auto-scaling, performance optimization
-2. **Integration Complexity**: Challenges with multiple data source APIs
-   - **Mitigation**: API abstraction layer, fallback mechanisms, error handling
-3. **Security Vulnerabilities**: Data breaches or system compromises
-   - **Mitigation**: Security audits, encryption, access controls, monitoring
+1. **Performance**: Web interface response times for complex queries
+   - **Mitigation**: Implement caching, optimize queries, use async processing
+2. **Data Quality**: Inconsistent or outdated agricultural data
+   - **Mitigation**: Multiple sources, validation rules, user feedback loops
 
 ### Business Risks
 #### High Priority
@@ -580,30 +546,30 @@ Build an agentic AI-powered agricultural advisory system for India that provides
 3. **Support Challenges**: Inability to provide adequate user support
    - **Mitigation**: Automated support, local partnerships, community forums
 
-## Success Criteria
+## Success Criteria (MVP)
 
 ### Short-term Goals (6 months)
-- **User Base**: 1,000 active farmers using the system regularly
-- **Query Accuracy**: 80%+ satisfaction rate with AI recommendations
-- **System Performance**: 99% uptime with <5 second response times
-- **Feature Completeness**: Core agents operational with basic functionality
+- **Core Functionality**: 3-4 agents operational with basic query handling
+- **Web Interface**: Functional chat interface with multilingual support
+- **Technical Validation**: Agent routing and response generation working
+- **Initial Testing**: Internal validation with agricultural experts
 
-### Medium-term Goals (12-18 months)
-- **Scale**: 10,000+ farmers across multiple states
-- **Impact**: Measurable improvement in yields/income for user base
-- **Technology**: All 7 agents fully functional with satellite integration
-- **Partnerships**: Government and NGO collaborations established
+### Medium-term Goals (12 months)
+- **Complete System**: All 7 agents functional with satellite data integration
+- **User Validation**: Testing with 50-100 farmers and positive feedback
+- **Performance**: Sub-5 second response times for typical queries
+- **Documentation**: Complete user guides and technical documentation
 
-### Long-term Goals (24+ months)
-- **National Reach**: 100,000+ farmers across major agricultural regions
-- **Sustainability**: Self-sustaining revenue model operational
-- **Innovation**: Advanced AI capabilities and new agricultural solutions
-- **Recognition**: Industry recognition as leading agtech solution in India
+### Success Metrics
+- **Technical**: 80%+ accuracy in query routing and basic recommendations
+- **User Experience**: 70%+ satisfaction rate in user testing
+- **System Performance**: 95%+ uptime during testing period
+- **Feature Completeness**: All core agent functionalities demonstrable
 
-## Conclusion
+## Conclusion (MVP Focus)
 
-The Multi-Agent Agriculture Advisory Dashboard represents a comprehensive solution to address critical challenges in Indian agriculture through innovative AI technology. By combining specialized agents, satellite data integration, multilingual support, and offline capabilities, the system provides farmers with actionable, hyperlocal advice that can significantly improve their agricultural outcomes.
+The Multi-Agent Agriculture Advisory Dashboard MVP represents a focused approach to demonstrating the viability of AI-powered agricultural advisory through specialized agent collaboration. By concentrating on web-based delivery with core functionality, this MVP will validate the technical feasibility and user value proposition before expanding to mobile platforms and production-scale deployment.
 
-The phased implementation approach ensures systematic development while managing risks and validating assumptions with real farmers. Success depends on deep agricultural domain knowledge, robust technical execution, and strong partnerships with government agencies and agricultural organizations.
+The streamlined scope ensures rapid development while maintaining the innovative multi-agent architecture that differentiates this solution in the agricultural technology landscape. Success of this MVP will provide the foundation for comprehensive development and deployment to serve India's farming community at scale.
 
 This PRD serves as the foundation for building a transformative agricultural technology platform that can positively impact millions of farmers across India and potentially expand to other developing agricultural markets globally.
