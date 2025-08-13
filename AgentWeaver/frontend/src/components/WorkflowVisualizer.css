@@ -1,0 +1,432 @@
+/* WorkflowVisualizer Styles */
+.workflow-visualizer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.no-workflow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  color: #888888;
+  background-color: #3d3d3d;
+  border-radius: 8px;
+  border: 2px dashed #555555;
+}
+
+.no-workflow-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-workflow h3 {
+  margin: 0 0 0.5rem 0;
+  color: #cccccc;
+}
+
+.no-workflow p {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.workflow-header {
+  background-color: #2d2d2d;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #404040;
+}
+
+.workflow-info {
+  margin-bottom: 1rem;
+}
+
+.workflow-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.workflow-icon {
+  font-size: 1.5rem;
+}
+
+.workflow-title h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 600;
+  flex: 1;
+}
+
+.workflow-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.workflow-status.pending {
+  background-color: #ffd60a;
+  color: #000000;
+}
+
+.workflow-status.running {
+  background-color: #06ffa5;
+  color: #000000;
+}
+
+.workflow-status.completed {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.workflow-status.failed {
+  background-color: #ff4757;
+  color: #ffffff;
+}
+
+.workflow-status.cancelled {
+  background-color: #747d8c;
+  color: #ffffff;
+}
+
+.workflow-id {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: #888888;
+}
+
+/* Progress Bar */
+.workflow-progress {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: #404040;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #61dafb, #06ffa5);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.85rem;
+  color: #cccccc;
+  font-family: 'Courier New', monospace;
+  white-space: nowrap;
+}
+
+.workflow-details {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: #3d3d3d;
+  border-radius: 6px;
+  border: 1px solid #4d4d4d;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: #888888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-value {
+  font-size: 0.85rem;
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+}
+
+.workflow-steps {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.workflow-steps h4 {
+  margin: 0 0 1rem 0;
+  color: #61dafb;
+  font-size: 1rem;
+  font-weight: 500;
+  border-bottom: 1px solid #404040;
+  padding-bottom: 0.5rem;
+}
+
+.steps-timeline {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Step Item */
+.step-item {
+  position: relative;
+  background-color: #3d3d3d;
+  border-radius: 8px;
+  border: 1px solid #4d4d4d;
+  transition: all 0.2s ease;
+}
+
+.step-item:hover {
+  background-color: #454545;
+  transform: translateX(2px);
+}
+
+.step-item.pending {
+  border-left: 4px solid #ffd60a;
+}
+
+.step-item.in-progress {
+  border-left: 4px solid #06ffa5;
+  background-color: #1a4d3a;
+}
+
+.step-item.completed {
+  border-left: 4px solid #28a745;
+  background-color: #1e4d2b;
+}
+
+.step-item.failed {
+  border-left: 4px solid #ff4757;
+  background-color: #4d2d2d;
+}
+
+.step-item.skipped {
+  border-left: 4px solid #747d8c;
+  opacity: 0.7;
+}
+
+/* Step Connector */
+.step-connector {
+  position: absolute;
+  top: -0.5rem;
+  left: 1rem;
+  height: 0.5rem;
+  width: 2px;
+  background-color: #404040;
+}
+
+.connector-line {
+  height: 100%;
+  width: 100%;
+  background-color: #404040;
+}
+
+/* Step Content */
+.step-content {
+  padding: 1rem;
+}
+
+.step-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.step-icon {
+  font-size: 1.2rem;
+}
+
+.step-name {
+  color: #ffffff;
+  font-weight: 500;
+  flex: 1;
+}
+
+.step-status {
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.step-status.pending {
+  background-color: #ffd60a;
+  color: #000000;
+}
+
+.step-status.in-progress {
+  background-color: #06ffa5;
+  color: #000000;
+}
+
+.step-status.completed {
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.step-status.failed {
+  background-color: #ff4757;
+  color: #ffffff;
+}
+
+.step-status.skipped {
+  background-color: #747d8c;
+  color: #ffffff;
+}
+
+/* Step Details */
+.step-details {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #4d4d4d;
+}
+
+.step-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.step-agent {
+  color: #61dafb;
+}
+
+.step-duration {
+  color: #06ffa5;
+}
+
+.step-output,
+.step-error {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.step-output strong,
+.step-error strong {
+  color: #cccccc;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.step-output pre,
+.step-error pre {
+  background-color: #1a1a1a;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  overflow-x: auto;
+  max-height: 100px;
+  overflow-y: auto;
+  margin: 0;
+  color: #ffffff;
+}
+
+.step-error pre {
+  color: #ff6b6b;
+  border: 1px solid #ff4757;
+}
+
+/* Step Progress Bar */
+.step-progress {
+  margin-top: 0.5rem;
+  height: 3px;
+  background-color: #2d2d2d;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.step-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #61dafb, #06ffa5);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Animations */
+.step-item.in-progress .step-icon {
+  animation: spin 2s linear infinite;
+}
+
+.step-item.in-progress .step-progress-bar {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .workflow-details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .step-meta {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .workflow-progress {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+/* Scrollbar Styling */
+.steps-timeline::-webkit-scrollbar {
+  width: 6px;
+}
+
+.steps-timeline::-webkit-scrollbar-track {
+  background: #2d2d2d;
+  border-radius: 3px;
+}
+
+.steps-timeline::-webkit-scrollbar-thumb {
+  background: #4d4d4d;
+  border-radius: 3px;
+}
+
+.steps-timeline::-webkit-scrollbar-thumb:hover {
+  background: #61dafb;
+}

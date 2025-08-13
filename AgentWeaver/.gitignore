@@ -1,0 +1,25 @@
+# My logs and debug files
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+
+# Dependencies I don't want to commit
+node_modules/
+
+# My secrets
+.env
+
+# Editor stuff I don't need in git
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS junk
+.DS_Store 

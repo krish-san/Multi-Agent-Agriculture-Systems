@@ -1,0 +1,547 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Initialize Project and LangGraph Environment Setup",
+        "description": "Set up the core project structure, version control, and install all necessary dependencies including Python 3.9+, LangGraph, and containerization tools.",
+        "details": "Create a new Git repository. Initialize a Python project with a virtual environment. Install LangGraph, Docker, and prepare Dockerfile for containerization. Establish a basic project layout with directories for agents, workflows, and configuration. This corresponds to the 'Foundation Layer' and 'Phase 1: LangGraph Setup'.",
+        "testStrategy": "Verify that all dependencies are installed correctly by running `pip freeze`. Build a basic 'hello world' LangGraph graph. Successfully build a Docker image from the Dockerfile.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Define Core Data Models and Basic State Management",
+        "description": "Define and implement the data models for Agent, Workflow, Message, and Task states. Implement basic state persistence using LangGraph's built-in state management for the MVP.",
+        "details": "Create Python classes or Pydantic models for AgentState, WorkflowState, Message, and Task as specified in the PRD. Utilize LangGraph's `StatefulGraph` and its built-in `MemorySaver` for initial state persistence. This establishes the 'State Management Foundation'.",
+        "testStrategy": "Unit test each data model for correct validation and serialization. Create an integration test that runs a simple graph and verifies that state is correctly passed between nodes and persisted in memory.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement Basic Supervisor Node",
+        "description": "Develop the central Supervisor Node as a LangGraph node. It should handle agent registration, basic health monitoring, and task assignment.",
+        "details": "Create a LangGraph node that maintains a registry of available worker agents. Implement functions within the node to add/remove agents and check their status (e.g., 'available', 'busy'). This node will act as the entry point for new tasks into the system.",
+        "testStrategy": "Unit test the supervisor's registration logic. Create an integration test where a mock agent registers itself with the supervisor and the supervisor's state is updated accordingly.",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Develop Basic Worker Agent Templates",
+        "description": "Create 2-3 simple, specialized worker agents with distinct capabilities, such as data processing, API interaction, or text analysis.",
+        "details": "Implement each worker as a function or class that can be added as a node to the LangGraph. Each agent should have a defined capability (e.g., 'summarize_text', 'fetch_data') that it reports to the supervisor upon registration.",
+        "testStrategy": "Unit test each agent's core logic independently. Integration test the registration of these agents with the supervisor node from task 3.",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Base Worker Agent Structure",
+            "description": "Create a standardized base class or functional template that all worker agents will adhere to. This ensures a consistent interface for integration with the LangGraph and Supervisor.",
+            "dependencies": [],
+            "details": "The base structure should define the core attributes and methods required for any worker, such as a `name`, a `capability` property, and an `execute` method. The `execute` method will contain the agent's core logic and must be compatible with LangGraph's state management.",
+            "status": "done",
+            "testStrategy": "Create a simple mock agent that implements the base structure to verify the interface contract. No functional logic is needed for the mock."
+          },
+          {
+            "id": 2,
+            "title": "Implement Text Analysis Agent ('summarize_text')",
+            "description": "Develop the text analysis worker agent. This agent will take a block of text from the graph's state and use a language model to generate a summary.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Implement a class or function that uses the base structure from subtask 4.1. It will integrate with the existing LLM from `models.py` to perform summarization. The agent must be configured to report its capability as 'summarize_text' to the supervisor.",
+            "status": "done",
+            "testStrategy": "Unit test the agent's summarization function with a sample paragraph to ensure it returns a shorter, coherent summary."
+          },
+          {
+            "id": 3,
+            "title": "Implement API Interaction Agent ('fetch_data')",
+            "description": "Develop the API interaction worker agent. This agent will be responsible for fetching data from an external URL provided in the graph's state.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Implement a class or function using the base structure from 4.1. Use a library like `requests` to perform an HTTP GET request. The agent should handle basic success and error responses, updating the state accordingly. It must report its capability as 'fetch_data'.",
+            "status": "done",
+            "testStrategy": "Unit test the agent's logic by mocking the HTTP request to simulate both a successful data fetch and a network/API error."
+          },
+          {
+            "id": 4,
+            "title": "Implement Data Processing Agent ('calculate_statistics')",
+            "description": "Develop a simple data processing agent that performs a calculation on numerical data from the graph's state, such as a list of numbers.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Implement a class or function using the base structure from 4.1. The agent's logic will calculate basic statistics (e.g., mean, sum, count) on an input list of numbers. It must report its capability as 'calculate_statistics'.",
+            "status": "done",
+            "testStrategy": "Unit test the agent's calculation logic with a predefined list of numbers to verify that it returns the correct statistical results."
+          },
+          {
+            "id": 5,
+            "title": "Integrate and Register All Worker Agents with Supervisor",
+            "description": "Write the final integration code to instantiate the three new worker agents and register them with the Supervisor node from Task 3.",
+            "dependencies": [
+              "4.2",
+              "4.3",
+              "4.4"
+            ],
+            "details": "In the main graph assembly script, create instances of the 'summarize_text', 'fetch_data', and 'calculate_statistics' agents. Use the supervisor's registration mechanism to add each agent to its registry, ensuring their capabilities are correctly reported and stored.",
+            "status": "done",
+            "testStrategy": "Run an integration test that initializes the supervisor and the three agents. After the registration process, query the supervisor's state to confirm that all three agents and their unique capabilities are present in its registry."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Implement Supervisor-to-Agent Communication Protocol",
+        "description": "Establish the communication mechanism for the supervisor to dispatch tasks to worker agents and receive results, using LangGraph's state management.",
+        "details": "Define the message routing logic within the graph. The supervisor node will update the shared state with a task assignment (e.g., target agent ID, task details). Conditional edges will then route control to the designated worker agent node.",
+        "testStrategy": "Create a test graph where the supervisor assigns a task to a specific worker. Verify that the correct worker node is executed and that the result is correctly written back to the shared state.",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Supervisor Task Dispatch State Update",
+            "description": "Modify the supervisor node's logic to select an available worker agent and update the shared LangGraph state with the task assignment. This involves setting a target agent identifier and the task payload.",
+            "dependencies": [],
+            "details": "Within the supervisor node function, implement the logic to choose an agent from its registry (established in Task 3). The function must then modify and return the graph's state object, populating specific fields like `next_agent: str` and `task_data: dict` to signal which agent should run next and what it should work on.",
+            "status": "done",
+            "testStrategy": "Unit test the supervisor node function. Provide it with a sample state and task, and assert that the returned state correctly contains the target agent's name and the task payload."
+          },
+          {
+            "id": 2,
+            "title": "Define Conditional Routing to Worker Agents",
+            "description": "Create the conditional edge logic that routes control from the supervisor to the correct worker agent node based on the target agent identifier set in the shared state.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Implement a routing function that inspects the `next_agent` field in the state. Use this function to define the graph's conditional edges, creating a mapping from each possible agent name (e.g., 'summarizer', 'data_fetcher') to its corresponding graph node. This edge will originate from the supervisor.",
+            "status": "done",
+            "testStrategy": "Create a test graph. Manually set the `next_agent` field in the initial state and invoke the graph. Verify using LangGraph's tracing or logging that the correct worker node is executed based on the state."
+          },
+          {
+            "id": 3,
+            "title": "Integrate Worker Nodes to Process Tasks from State",
+            "description": "Adapt the existing worker agent functions (from Task 4) to operate as nodes within the graph. They must read their assigned task from the shared state, execute their logic, and write their result back to the state.",
+            "dependencies": [],
+            "details": "For each worker agent, ensure its node function is designed to accept the shared state object as input. The function should extract its task from the `task_data` field, perform its work, and then update a `result` field in the state with its output before returning the modified state.",
+            "status": "done",
+            "testStrategy": "Individually test each worker node function by passing it a mock state object containing a task. Assert that the returned state object includes the expected result from the agent's execution."
+          },
+          {
+            "id": 4,
+            "title": "Implement Return Path from Agents to Supervisor",
+            "description": "Establish the graph edges that route control from any worker agent node back to the supervisor node after a task is completed, allowing the supervisor to process the result.",
+            "dependencies": [
+              "5.2",
+              "5.3"
+            ],
+            "details": "In the graph definition, add a standard (non-conditional) edge from each worker agent node back to the supervisor node. This ensures that after a worker finishes and updates the state with its result, the supervisor is invoked again to handle the result, clear the previous task assignment, and prepare for the next cycle.",
+            "status": "done",
+            "testStrategy": "Run a full-cycle integration test. Start with a task for the supervisor, verify it routes to a worker, the worker runs, and control is passed back to the supervisor. Check the graph's final state to confirm the result was received and processed by the supervisor."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Build and Test a Basic Linear Workflow",
+        "description": "Construct a simple, end-to-end linear workflow involving the supervisor and multiple worker agents to validate the core system functionality and basic error handling.",
+        "details": "Create a graph that chains 3-4 nodes: Supervisor assigns task -> Worker 1 performs action -> Worker 2 processes result. Implement basic try-except blocks in agent nodes to catch errors and log them to the state.",
+        "testStrategy": "End-to-end test: Run the workflow with a sample input and verify the final output is correct. Test the error handling by forcing an agent to fail and checking that the error is logged as expected.",
+        "priority": "high",
+        "dependencies": [
+          5
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design the Linear Workflow Graph and State Schema",
+            "description": "Define the specific sequence of nodes (e.g., Supervisor -> TextSummarizer -> ReportFormatter) and the detailed structure of the shared state object that will be passed between them. This establishes the blueprint for the workflow.",
+            "dependencies": [],
+            "details": "Create a Pydantic or TypedDict model for the graph's state. It must include fields for the initial task, intermediate data passed from Worker 1 to Worker 2, the final result, and a dedicated field for logging errors (e.g., `error_message: str | None`).",
+            "status": "done",
+            "testStrategy": "Peer review the state schema and graph design to confirm it logically supports the end-to-end data flow and error logging requirements of the main task."
+          },
+          {
+            "id": 2,
+            "title": "Implement Worker Nodes with Integrated Error Handling",
+            "description": "Wrap the core logic of two distinct worker agents (from Task 4) into functions suitable for LangGraph nodes. Each function must include a try-except block to handle potential runtime errors.",
+            "dependencies": [],
+            "details": "The `try` block will contain the agent's primary action (e.g., processing text). The `except` block will catch any exceptions, format an error message, and update the `error_message` field in the shared state object instead of crashing. The function should always return the updated state.",
+            "status": "done",
+            "testStrategy": "Unit test each node function in isolation. Provide valid inputs to verify correct state updates, and mock an exception to verify the `except` block correctly populates the error field in the state."
+          },
+          {
+            "id": 3,
+            "title": "Construct and Compile the Workflow Graph",
+            "description": "Assemble the defined nodes into a `StatefulGraph`. This involves adding the Supervisor node and the two newly implemented worker nodes, then defining the static edges that enforce the linear sequence.",
+            "dependencies": [],
+            "details": "Instantiate the graph with the state schema from subtask 1. Set the Supervisor as the entry point. Use `add_edge` to create a fixed path: Supervisor -> Worker 1 -> Worker 2. Set Worker 2 as the graph's finish point. Compile the final graph object.",
+            "status": "done",
+            "testStrategy": "Run a basic compilation test to ensure the graph is valid. Invoke the compiled graph with a minimal, valid input to confirm it runs from entry to exit without structural errors."
+          },
+          {
+            "id": 4,
+            "title": "Create End-to-End Tests for Success and Failure Scenarios",
+            "description": "Develop and run automated tests that invoke the complete, compiled workflow to validate its behavior under both normal and error conditions.",
+            "dependencies": [],
+            "details": "Create two test cases: 1) A 'success' case with a valid input, asserting the final state contains the correct, processed output. 2) A 'failure' case that uses an input designed to make a worker fail, asserting that the final state's `error_message` field is correctly populated and the other output fields are in an expected state (e.g., empty or unchanged).",
+            "status": "done",
+            "testStrategy": "Use a test framework like pytest to execute the tests. The assertions will inspect the final state object returned by the `graph.invoke()` call for the expected values."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Integrate Redis for Persistent State Management",
+        "description": "Upgrade the state management backend from in-memory to a persistent store using Redis to ensure state is maintained across restarts and failures.",
+        "details": "Integrate `langchain_redis.RedisSaver` with the LangGraph instance. Configure the connection to a Redis server (running in Docker). Update the system to use this persistent checkpointing for all workflows. This covers 'Phase 2: Enhanced State'.",
+        "testStrategy": "Run a workflow, stop the application, restart it, and verify that the workflow can be resumed from its previous state by loading the checkpoint from Redis. Test data consistency by inspecting Redis keys directly.",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          6
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Advanced Conditional and Failure Routing",
+        "description": "Enhance the workflow engine with dynamic routing capabilities, including conditional branching based on task output and automatic rerouting on agent failure.",
+        "details": "Use conditional edges in LangGraph to route tasks based on data in the state (e.g., if content analysis is 'positive', route to agent A; if 'negative', route to agent B). Implement logic in the supervisor or a router node to detect agent failure (e.g., via timeout or error flag in state) and reroute the task to an available agent with the same capability.",
+        "testStrategy": "Create a workflow with a conditional branch and test both paths. Simulate an agent failure and verify that the task is automatically rerouted to a backup agent and the workflow completes successfully.",
+        "priority": "medium",
+        "dependencies": [
+          6
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Conditional Router Node",
+            "description": "Create a dedicated router function that inspects the shared state for specific keys (e.g., 'analysis_result') and determines the next node to execute based on the value.",
+            "dependencies": [],
+            "details": "The router function will take the state object as input and must return a string. This string will be the key used in the conditional edge mapping to select the next path (e.g., return 'route_to_A' if state['analysis_result'] == 'positive').",
+            "status": "done",
+            "testStrategy": "Unit test the router function with various mock state objects to ensure it returns the correct destination key for each defined condition."
+          },
+          {
+            "id": 2,
+            "title": "Integrate Conditional Edges into the Graph",
+            "description": "Modify the main LangGraph definition to add the conditional router node and use the `add_conditional_edges` method to connect it to multiple downstream agent nodes.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Wire the graph so that after a content analysis agent runs, control passes to the conditional router. Use `add_conditional_edges` to link the router to Agent A and Agent B, providing a mapping dictionary that connects the router's output strings to the respective agent node names.",
+            "status": "done",
+            "testStrategy": "Create a full workflow test. Run the graph with input that should result in a 'positive' analysis and verify Agent A is executed. Run a second test with 'negative' input and verify Agent B is executed."
+          },
+          {
+            "id": 3,
+            "title": "Implement Agent Failure Detection Mechanism",
+            "description": "Enhance the agent execution wrapper to detect failures (e.g., via exceptions). When a failure occurs, the wrapper must update the shared graph state with an error flag and relevant metadata.",
+            "dependencies": [],
+            "details": "Wrap the core agent function call in a try/except block. In the `except` block, modify the state object to include keys like `error: True`, `failed_agent_id: 'agent_X'`, and `required_capability: 'text_analysis'`. This makes the failure explicit in the state for the router to act upon.",
+            "status": "done",
+            "testStrategy": "Create a mock agent that is designed to always raise an exception. Execute a workflow with this agent and inspect the final state to verify that the `error` flag and other failure metadata have been correctly set."
+          },
+          {
+            "id": 4,
+            "title": "Develop and Integrate Failure Rerouting Logic",
+            "description": "Update the supervisor/router node to check the state for failure flags. If a failure is detected, the node will query the agent registry for an available backup agent with the same capability and redirect the task.",
+            "dependencies": [
+              "8.3"
+            ],
+            "details": "The supervisor's routing logic should first check for the `error` key in the state. If true, it will use the `required_capability` from the state to find an alternative agent from its registry (from Task 3), ensuring it doesn't select the same `failed_agent_id`. The task is then reassigned, and the error flag is cleared.\n<info added on 2025-08-02T13:18:08.699Z>\nAn architectural decision was made to implement graceful failure handling by rerouting to a backup agent, rather than using complex retry logic, to ensure workflow stability. The implementation includes a configurable maximum for reroute attempts and tracks recovery attempts within the state. The system provides structured error reporting with detailed failure context and metrics for operational monitoring. All 12 related conditional workflow tests are passing, confirming the functionality.\n</info added on 2025-08-02T13:18:08.699Z>",
+            "status": "done",
+            "testStrategy": "Configure a workflow with a primary agent (that will fail) and a registered backup agent with the same capability. Trigger the failure and verify that the system automatically reroutes the task to the backup agent and the workflow completes successfully."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Enable Peer-to-Peer and Hierarchical Communication",
+        "description": "Implement communication patterns that allow agents to communicate directly with each other and establish hierarchical structures with team leads managing sub-teams.",
+        "details": "For P2P, an agent node will update the shared state with a message intended for another agent, and a conditional edge will route to that agent. For hierarchies, create a 'team lead' agent graph that can invoke a sub-graph of worker agents, managing their execution and reporting a consolidated result back to the main graph.",
+        "testStrategy": "Test P2P by creating a workflow where two worker agents collaborate on a task. Test hierarchy by creating a main graph that delegates a sub-task to a team lead graph and waits for its consolidated response.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Develop Backend APIs for Monitoring and Control",
+        "description": "Build REST and WebSocket APIs to expose system status, agent metrics, and workflow states for external consumption, primarily by the web dashboard.",
+        "details": "Use a web framework like FastAPI. Create REST endpoints for: listing agents (`/agents`), getting agent details (`/agents/{id}`), and controlling workflows (`/workflows`). Implement a WebSocket endpoint (`/ws/updates`) to push real-time updates on agent status and workflow progress.",
+        "testStrategy": "Use an API client like Postman or Insomnia to test all REST endpoints. Write a simple Python script to connect to the WebSocket and verify that real-time messages are received when a workflow is running.",
+        "priority": "medium",
+        "dependencies": [
+          6,
+          7
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up FastAPI Application and Project Structure",
+            "description": "Initialize a new FastAPI project. Establish a logical directory structure for routers, API-specific models, and services. Include a basic health check endpoint (e.g., `/health`) to confirm the server is running.",
+            "dependencies": [],
+            "details": "Create the main application file (e.g., `main.py`) with the FastAPI app instance. Organize code into folders like `/api/routers`, `/api/models`, and `/services` to keep the project maintainable.",
+            "status": "done",
+            "testStrategy": "Run the server and access the `/health` endpoint and the auto-generated `/docs` to ensure the basic application is functional."
+          },
+          {
+            "id": 2,
+            "title": "Define API Pydantic Models for Requests and Responses",
+            "description": "Create Pydantic models that will serve as the schemas for API requests and responses. This ensures data validation and populates the OpenAPI documentation.",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Define models for `AgentResponse`, `AgentListResponse`, `WorkflowCreateRequest`, and `WorkflowStatusResponse`. These models will be used in the endpoint function signatures for validation and serialization.",
+            "status": "done",
+            "testStrategy": "No direct testing needed, but these models will be validated during the testing of the endpoints that use them."
+          },
+          {
+            "id": 3,
+            "title": "Implement REST Endpoints for Agent Listing and Details",
+            "description": "Create the `GET /agents` and `GET /agents/{id}` endpoints. These will interface with the Supervisor Node (from Task 3) to retrieve and return data about registered agents.",
+            "dependencies": [
+              "10.1",
+              "10.2"
+            ],
+            "details": "Create a new router file (e.g., `api/routers/agents.py`). Implement the logic to call the supervisor's agent registry to fetch the list of agents and their current status.",
+            "status": "done",
+            "testStrategy": "Use Postman or Insomnia to send GET requests to `/agents` and `/agents/{some_id}`. Verify the responses match the expected structure and data."
+          },
+          {
+            "id": 4,
+            "title": "Implement REST Endpoint for Workflow Control",
+            "description": "Develop the `POST /workflows` endpoint to allow external systems to initiate new workflows. This endpoint will trigger the main LangGraph execution process.",
+            "dependencies": [
+              "10.1",
+              "10.2"
+            ],
+            "details": "The endpoint should accept a payload defined by the `WorkflowCreateRequest` model. It will then invoke the LangGraph supervisor to start processing the task and should return an initial response, like a unique ID for the new workflow.",
+            "status": "done",
+            "testStrategy": "Use Postman or Insomnia to send a POST request to `/workflows` with a valid JSON body. Verify that a new workflow is initiated in the backend and that a proper response (e.g., 202 Accepted with a workflow ID) is returned."
+          },
+          {
+            "id": 5,
+            "title": "Implement WebSocket Endpoint and Connection Manager",
+            "description": "Create the `/ws/updates` WebSocket endpoint. Implement the necessary logic to accept and manage client connections, including handling new connections and disconnections.",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Use FastAPI's `WebSocket` support. Create a connection manager class or utility function to maintain a list of active WebSocket clients to whom updates can be broadcast.",
+            "status": "done",
+            "testStrategy": "Write a simple Python client script using a library like `websockets` to connect to `/ws/updates`. Verify that the connection is established and maintained."
+          },
+          {
+            "id": 6,
+            "title": "Integrate LangGraph State Changes with WebSocket Broadcaster",
+            "description": "Hook into the LangGraph state management system to capture real-time updates on agent status and workflow progress, and broadcast these updates to all connected WebSocket clients.",
+            "dependencies": [
+              "10.4",
+              "10.5"
+            ],
+            "details": "Modify the LangGraph execution logic or use callbacks to send state change events (e.g., agent becomes 'busy', workflow moves to next step) to the WebSocket connection manager, which will then format and push the message to clients.",
+            "status": "done",
+            "testStrategy": "Run the Python WebSocket client from subtask 10.5. Use the endpoint from subtask 10.4 to start a workflow. Verify that the client script receives real-time JSON messages corresponding to the workflow's progress."
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Build Basic Real-time Monitoring Web Dashboard",
+        "description": "Develop a simple React-based frontend to provide a real-time view of agent status, performance metrics, and ongoing workflow execution.",
+        "details": "Create a React application using Create React App or Vite. Design components to display a list of registered agents and their status (e.g., 'idle', 'running'). Connect to the WebSocket API (from task 10) to update the UI in real-time. Add a view to visualize the steps of a running workflow.",
+        "testStrategy": "Manual testing: Launch the backend and frontend. Run a workflow and verify that the dashboard UI updates correctly to show agent status changes and workflow progress without needing a page refresh.",
+        "priority": "medium",
+        "dependencies": [
+          10
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize React Project and Basic Layout",
+            "description": "Set up a new React project using Vite and establish the basic application layout, including a header, main content area, and placeholder sections for the agent list and workflow view.",
+            "dependencies": [],
+            "details": "Use `npm create vite@latest` with the React template. Set up basic CSS or a simple UI library for styling. Create a main `App` component with a simple grid or flexbox layout to structure the dashboard.",
+            "status": "done",
+            "testStrategy": "Run `npm run dev` and verify that the basic application shell with placeholder sections renders correctly in the browser."
+          },
+          {
+            "id": 2,
+            "title": "Create Static Agent Status Component",
+            "description": "Develop a static React component to display a list of agents. Each item in the list should show the agent's ID and a placeholder for its status (e.g., 'idle', 'running').",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Create a new component, e.g., `AgentList.js`. It should accept an array of agent objects as a prop and render them. Use mock data initially to build the UI. Style the component to clearly distinguish between different statuses using color-coded badges or icons.",
+            "status": "done",
+            "testStrategy": "Render the component with mock data in a storybook or directly in the main app view and verify its appearance and responsiveness."
+          },
+          {
+            "id": 3,
+            "title": "Establish WebSocket Connection Service",
+            "description": "Implement a client-side service or custom hook to connect to the backend WebSocket API from Task 10. This service should handle connection, disconnection, and message reception logic.",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Create a reusable hook (e.g., `useWebSocket`) that takes the WebSocket URL as an argument. It should manage the WebSocket instance and expose connection status and the last received message. Implement logic for handling `onopen`, `onmessage`, `onerror`, and `onclose` events.",
+            "status": "done",
+            "testStrategy": "Connect to the running backend WebSocket. Log incoming messages to the browser console to verify the connection is successful and data is being received as expected."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Real-time Data into Agent Status Component",
+            "description": "Connect the `AgentList` component to the WebSocket service to display and update agent statuses in real-time based on messages from the backend.",
+            "dependencies": [
+              "11.2",
+              "11.3"
+            ],
+            "details": "In the parent component, use the `useWebSocket` hook. Maintain a state variable for the list of agents. When a message related to agent status is received, parse it and update the agent list state, causing the `AgentList` component to re-render with the new data.",
+            "status": "done",
+            "testStrategy": "With the backend running, trigger an event that changes an agent's status (e.g., start a workflow). Verify that the status change is reflected in the UI without a page refresh."
+          },
+          {
+            "id": 5,
+            "title": "Create Static Workflow Execution Visualization Component",
+            "description": "Design and build a static React component to visualize the steps of a single, ongoing workflow, showing each step's name and status.",
+            "dependencies": [
+              "11.1"
+            ],
+            "details": "Create a `WorkflowVisualizer.js` component. It should display the workflow ID and a list or timeline of its steps. Each step should show its name and status (e.g., 'pending', 'in-progress', 'completed', 'failed'). Use mock data to develop the initial layout.",
+            "status": "done",
+            "testStrategy": "Render the component with mock workflow data representing different stages of execution and verify the visual representation is clear and accurate."
+          },
+          {
+            "id": 6,
+            "title": "Integrate Real-time Data into Workflow Visualization",
+            "description": "Connect the `WorkflowVisualizer` component to the WebSocket service to update the display of workflow steps as they execute.",
+            "dependencies": [
+              "11.3",
+              "11.5"
+            ],
+            "details": "Use the WebSocket connection to listen for messages about workflow progress (e.g., 'step_started', 'step_completed'). When a message for the currently viewed workflow is received, update the component's state to reflect the new step status or output.",
+            "status": "done",
+            "testStrategy": "Run a multi-step workflow on the backend. Observe the dashboard and verify that the workflow visualization updates in real-time, highlighting the active step and marking previous steps as complete."
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Implement Swarm Orchestration for Parallel Execution",
+        "description": "Enable the system to execute multiple instances of an agent in parallel for tasks that can be broken down and processed concurrently.",
+        "details": "Modify the graph to support dynamic parallel execution. The supervisor node will identify a parallelizable task, split it into sub-tasks, and invoke multiple instances of the same worker agent concurrently. A subsequent node will be responsible for aggregating the results from all parallel branches.",
+        "testStrategy": "Create a test case with a list of 10 items to be processed. Verify that the system runs the processing agent in parallel (e.g., 3-4 at a time) and that the final aggregated result is correct. Monitor system logs or state to confirm concurrent execution.",
+        "priority": "medium",
+        "dependencies": [
+          8
+        ],
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Update Supervisor to Identify and Split Parallelizable Tasks",
+            "description": "Modify the Supervisor Node to include logic that determines if an incoming task can be parallelized (e.g., based on task type or a list-based data structure). If so, it will break the task into a list of smaller, independent sub-tasks to be stored in the shared state.",
+            "dependencies": [],
+            "details": "The supervisor's logic will be enhanced to inspect the task payload. If it's a list of items, it will transform it into a new state field, e.g., `sub_tasks_to_process`, where each element is a self-contained task for a worker. A conditional edge will then route to the new parallel execution flow.",
+            "status": "done",
+            "testStrategy": "Unit test the supervisor's splitting logic with a sample list-based task. Verify that the output state correctly contains a formatted list of sub-tasks."
+          },
+          {
+            "id": 2,
+            "title": "Implement a 'Fork' Node for Dynamic Branching",
+            "description": "Create a new node in the graph that reads the list of sub-tasks from the state. This node's function will be to initiate the parallel execution of a worker agent for each sub-task in the list.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "This 'fork' node will be the entry point for the parallel swarm. It will map over the `sub_tasks_to_process` list and invoke the worker agent node for each item. This leverages LangGraph's ability to handle multiple concurrent paths originating from a single node.\n<info added on 2025-08-02T15:30:08.481Z>\nA `ParallelForkNode` class has been implemented to initiate parallel execution. It reads the list of sub-tasks from the state and dynamically creates a separate execution branch in LangGraph for each sub-task. The architecture follows a Fork -> Worker -> Aggregator flow, managed by a dedicated router function and conditional edges. A `ParallelExecutionState` object was introduced to track the progress of active, completed, and failed sub-tasks, with support for configurable concurrency (default: 3). Integration tests confirmed that the `SwarmSupervisorNode` correctly identifies and splits tasks, and the fork node successfully initiates the parallel workflow.\n</info added on 2025-08-02T15:30:08.481Z>",
+            "status": "done",
+            "testStrategy": "Test the fork node in isolation. Provide it with a pre-populated list of sub-tasks in the state and verify that it correctly triggers the subsequent node for each item in the list."
+          },
+          {
+            "id": 3,
+            "title": "Adapt Worker Agent for Concurrent, Stateless Operation",
+            "description": "Refactor the target worker agent to ensure it can be executed concurrently. The agent must operate on a single sub-task idempotently and append its result to a shared collection in the state in a thread-safe manner.",
+            "dependencies": [
+              "12.2"
+            ],
+            "details": "The worker agent function will be modified to accept a single sub-task payload. It will write its output to a shared list or dictionary in the graph state, for example, `processed_results`. The key is to ensure no two instances overwrite each other's results.",
+            "status": "done",
+            "testStrategy": "Unit test the modified worker agent to confirm it correctly processes a single sub-task payload and returns the result in the expected format."
+          },
+          {
+            "id": 4,
+            "title": "Create an 'Aggregator' Node for Result Synchronization",
+            "description": "Develop a new graph node that acts as a 'join' or synchronization point. This node will be responsible for collecting all the individual results from the parallel branches and consolidating them into a single, final output.",
+            "dependencies": [
+              "12.3"
+            ],
+            "details": "The aggregator node will read the `processed_results` from the state. It will combine these partial results into a final, coherent response (e.g., a single list or a summary document). This consolidated result will then update the state, marking the end of the parallel execution phase.",
+            "status": "done",
+            "testStrategy": "Unit test the aggregator node by providing a mock state containing a list of partial results. Verify that the node correctly combines them into the desired final output format."
+          },
+          {
+            "id": 5,
+            "title": "Configure Graph Edges for the Fork-Join Workflow",
+            "description": "Define the conditional edges in the LangGraph to manage the complete parallel execution flow. This includes routing from the supervisor to the 'fork' node, and from the worker nodes to the 'aggregator' node once all parallel tasks are complete.",
+            "dependencies": [
+              "12.2",
+              "12.4"
+            ],
+            "details": "A key conditional edge will be implemented after the worker node. This edge's logic will check if the number of results in `processed_results` matches the number of tasks in `sub_tasks_to_process`. Only when they match will it route control to the aggregator node. Otherwise, the graph will wait for other branches to finish.",
+            "status": "done",
+            "testStrategy": "Perform a dry run of the graph structure. Manually trace the flow for a parallel task to ensure all conditional edges route to the correct nodes (fork, worker, aggregator, and finally back to supervisor or end)."
+          },
+          {
+            "id": 6,
+            "title": "Develop and Run End-to-End Integration Test for Parallelism",
+            "description": "Implement the test case specified in the main task. Create a workflow with a list of 10 items, execute the graph, and verify that the worker agents run concurrently and the final aggregated result is correct.",
+            "dependencies": [
+              "12.5"
+            ],
+            "details": "The test will invoke the fully assembled graph with a sample task (e.g., process a list of 10 strings). Assertions will be placed on the final output from the aggregator node. System logs or state inspection will be used to confirm that multiple worker instances were active simultaneously.",
+            "status": "done",
+            "testStrategy": "Execute the test and monitor system resource usage or logs for evidence of concurrent execution. The primary success criteria are the correctness of the final aggregated data and a completion time significantly less than a sequential execution would take."
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-31T08:11:35.472Z",
+      "updated": "2025-08-02T16:01:59.231Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
