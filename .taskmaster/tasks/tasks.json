@@ -9,7 +9,7 @@
         "testStrategy": "Run the FastAPI server locally. Use an API client like Postman or curl to hit a health check endpoint (e.g., `/health`) and verify a 200 OK response. Unit test the initial database connection logic.",
         "priority": "high",
         "dependencies": [],
-        "status": "todo",
+        "status": "in-progress",
         "subtasks": []
       },
       {
@@ -273,7 +273,7 @@
     ],
     "metadata": {
       "created": "2025-08-13T17:08:38.099Z",
-      "updated": "2025-08-13T17:21:02.188Z",
+      "updated": "2025-08-13T18:00:10.000Z",
       "description": "Tasks for master context"
     }
   }
