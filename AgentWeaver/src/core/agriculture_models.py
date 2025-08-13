@@ -9,7 +9,23 @@ from enum import Enum
 from pydantic import BaseModel, Field
 from dataclasses import dataclass
 
-from ..core.models import AgentCapability, Task, TaskPriority
+# Handle imports flexibly for different execution contexts
+try:
+    from ..core.models import AgentCapability, Task, TaskPriority
+except ImportError:
+    try:
+        from src.core.models import AgentCapability, Task, TaskPriority
+    except ImportError:
+        # For standalone execution, define minimal required classes
+        from enum import Enum
+        class AgentCapability(str, Enum):
+            pass
+        class TaskPriority(str, Enum):
+            LOW = "low"
+            MEDIUM = "medium"
+            HIGH = "high"
+        class Task:
+            pass
 
 
 # Agricultural Domain Enums
@@ -23,6 +39,8 @@ class CropType(str, Enum):
     BARLEY = "barley"
     MILLET = "millet"
     PULSES = "pulses"
+    MUSTARD = "mustard"
+    FODDER = "fodder"
     VEGETABLES = "vegetables"
     FRUITS = "fruits"
     SPICES = "spices"
@@ -66,8 +84,8 @@ class Language(str, Enum):
 
 
 # Agricultural Agent Capabilities
-class AgricultureCapability(AgentCapability):
-    # Extend existing capabilities with agriculture-specific ones
+class AgricultureCapability(str, Enum):
+    # Agriculture-specific capabilities (not extending enum)
     CROP_RECOMMENDATION = "crop_recommendation"
     PEST_IDENTIFICATION = "pest_identification"
     YIELD_PREDICTION = "yield_prediction"
@@ -147,12 +165,12 @@ class CropVariety:
     variety_id: str
     crop_type: CropType
     name: str
-    local_name: Optional[str] = None
     duration_days: int
     season: SeasonType
     yield_potential: float  # quintals per hectare
     water_requirement: float  # mm
     suitable_soil_types: List[SoilType]
+    local_name: Optional[str] = None
     resistance_traits: List[str] = None  # drought, pest, disease resistance
     seed_rate: Optional[float] = None  # kg per hectare
     spacing: Optional[str] = None

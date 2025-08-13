@@ -41,14 +41,43 @@ class AgricultureIntegrationService:
         integration_service.register_handler("get_agriculture_status", self.get_status)
     
     def _initialize_router(self):
-        """Initialize the agriculture router"""
+        """Initialize the agriculture router and specialist agents"""
         try:
             self.agriculture_router = create_agriculture_router()
             
             # Register router with supervisor
             self.supervisor.register_agent(self.agriculture_router.agent_state)
             
-            logger.info("Agriculture router initialized and registered")
+            # Import and initialize specialist agents
+            from ..agents.crop_selection_agent import CropSelectionAgent
+            from ..agents.pest_management_agent import PestManagementAgent
+            from ..agents.irrigation_agent import IrrigationAgent
+            
+            # Initialize specialist agents
+            crop_agent = CropSelectionAgent()
+            pest_agent = PestManagementAgent()
+            irrigation_agent = IrrigationAgent()
+            
+            # Register specialist agents with their domains
+            self.register_specialist_agent(
+                "crop_selection_agent", 
+                crop_agent, 
+                [QueryDomain.CROP_SELECTION]
+            )
+            
+            self.register_specialist_agent(
+                "pest_management_agent", 
+                pest_agent, 
+                [QueryDomain.PEST_MANAGEMENT]
+            )
+            
+            self.register_specialist_agent(
+                "irrigation_agent", 
+                irrigation_agent, 
+                [QueryDomain.IRRIGATION]
+            )
+            
+            logger.info(f"Agriculture router and {len(self.specialist_agents)} specialist agents initialized")
             
         except Exception as e:
             logger.error(f"Failed to initialize agriculture router: {e}")
@@ -249,126 +278,153 @@ class AgricultureIntegrationService:
             agent_info = self.specialist_agents[agent_id]
             agent_instance = agent_info["instance"]
             
-            # Create task for the agent
-            agent_task = AgricultureTask(
-                task_id=f"{agent_id}_{agriculture_query.query_id}",
-                description=agriculture_query.query_text,
-                task_type="agriculture_analysis",
-                priority=agriculture_query.priority,
-                query_data=agriculture_query
+            # Send status update
+            await self._send_status_update(
+                agriculture_query.query_id, 
+                "processing", 
+                f"Consulting {agent_instance.name}..."
             )
             
-            # Execute agent
+            # Execute agent using the process_query method
             start_time = datetime.now()
-            result = await agent_instance.execute(agent_task, agriculture_query.context)
+            response = await agent_instance.process_query(agriculture_query)
             end_time = datetime.now()
             
-            processing_time = int((end_time - start_time).total_seconds() * 1000)
+            # Update processing time
+            processing_time = (end_time - start_time).total_seconds()
+            response.processing_time = processing_time
             
-            # Convert result to AgentResponse
-            if isinstance(result, dict) and "response" in result:
-                response = AgentResponse(
-                    agent_id=agent_id,
-                    agent_name=getattr(agent_instance, "name", agent_id),
-                    query_id=agriculture_query.query_id,
-                    response_text=result["response"],
-                    confidence_score=result.get("confidence", 0.8),
-                    reasoning=result.get("reasoning", ""),
-                    sources=result.get("sources", []),
-                    recommendations=result.get("recommendations", []),
-                    warnings=result.get("warnings", []),
-                    processing_time_ms=processing_time,
-                    metadata=result.get("metadata", {})
-                )
-                return response
+            # Store response in active queries
+            self.active_queries[agriculture_query.query_id]["responses"][agent_id] = response
+            
+            logger.info(f"Agent {agent_id} completed processing in {processing_time:.2f}s")
+            return response
             
         except Exception as e:
             logger.error(f"Failed to execute agent {agent_id}: {e}")
-        
-        return None
+            return None
     
     async def _aggregate_responses(
         self, 
         agriculture_query: AgricultureQuery, 
         routing_decision, 
         agent_responses: List[AgentResponse]
-    ) -> AggregatedResponse:
+    ) -> Dict[str, Any]:
         """Aggregate responses from multiple agents into final response"""
         
         try:
             if not agent_responses:
-                final_text = "I'm sorry, I couldn't process your query at the moment. Please try rephrasing your question or contact support."
-                confidence = 0.1
+                return {
+                    "status": "error",
+                    "query_id": agriculture_query.query_id,
+                    "response": {
+                        "final_recommendation": "I'm sorry, I couldn't process your query at the moment. Please try rephrasing your question.",
+                        "confidence": 0.1,
+                        "sources": [],
+                        "details": {}
+                    }
+                }
             
-            elif len(agent_responses) == 1:
-                # Single agent response
-                response = agent_responses[0]
-                final_text = response.response_text
-                confidence = response.confidence_score
+            # Convert list to dict for synthesis
+            response_dict = {resp.agent_id: resp for resp in agent_responses}
             
-            else:
-                # Multiple agent responses - create comprehensive answer
-                final_text = self._synthesize_multi_agent_response(agent_responses)
-                confidence = sum(r.confidence_score for r in agent_responses) / len(agent_responses)
+            # Synthesize responses
+            synthesized = await self._synthesize_responses(response_dict)
             
             # Calculate total processing time
-            total_processing_time = sum(r.processing_time_ms or 0 for r in agent_responses)
+            total_processing_time = sum(getattr(r, 'processing_time', 0) for r in agent_responses)
             
-            aggregated_response = AggregatedResponse(
-                query_id=agriculture_query.query_id,
-                original_query=agriculture_query.query_text,
-                detected_domains=routing_decision.detected_domains,
-                agent_responses=agent_responses,
-                final_response=final_text,
-                confidence_score=min(confidence, 1.0),
-                response_language=agriculture_query.query_language,
-                processing_summary={
-                    "agents_used": len(agent_responses),
-                    "execution_plan": routing_decision.execution_plan,
-                    "routing_confidence": routing_decision.confidence
-                },
-                total_processing_time_ms=total_processing_time
-            )
-            
-            return aggregated_response
+            return {
+                "status": "success",
+                "query_id": agriculture_query.query_id,
+                "response": synthesized,
+                "metadata": {
+                    "agents_used": [r.agent_id for r in agent_responses],
+                    "execution_plan": getattr(routing_decision, 'execution_plan', 'parallel'),
+                    "routing_confidence": getattr(routing_decision, 'confidence', 0.8),
+                    "total_processing_time": total_processing_time,
+                    "detected_domains": getattr(routing_decision, 'detected_domains', [])
+                }
+            }
             
         except Exception as e:
             logger.error(f"Failed to aggregate responses: {e}")
             
             # Return error response
-            return AggregatedResponse(
-                query_id=agriculture_query.query_id,
-                original_query=agriculture_query.query_text,
-                detected_domains=[],
-                agent_responses=[],
-                final_response=f"Error processing query: {str(e)}",
-                confidence_score=0.0,
-                total_processing_time_ms=0
-            )
+            return {
+                "status": "error",
+                "query_id": agriculture_query.query_id,
+                "response": {
+                    "final_recommendation": f"Error processing query: {str(e)}",
+                    "confidence": 0.0,
+                    "sources": [],
+                    "details": {}
+                }
+            }
     
-    def _synthesize_multi_agent_response(self, agent_responses: List[AgentResponse]) -> str:
+    async def _synthesize_responses(self, agent_responses: Dict[str, AgentResponse]) -> Dict[str, Any]:
         """Synthesize responses from multiple agents into coherent answer"""
         
-        synthesis = []
+        if not agent_responses:
+            return {
+                "final_recommendation": "I couldn't process your query at this time.",
+                "confidence": 0.0,
+                "sources": [],
+                "details": {}
+            }
         
-        # Group by response type/domain
-        domain_responses = {}
-        for response in agent_responses:
-            agent_name = response.agent_name
-            domain_responses[agent_name] = response.response_text
+        # Organize responses by domain
+        recommendations = []
+        all_sources = []
+        total_confidence = 0
+        detailed_responses = {}
         
-        # Create structured response
-        synthesis.append("Based on my analysis, here's what I recommend:\n")
+        for agent_id, response in agent_responses.items():
+            if response.status == "completed":
+                # Get agent name
+                agent_name = response.agent_id.replace("_agent", "").replace("_", " ").title()
+                
+                # Extract main recommendation
+                if hasattr(response, 'recommendations') and response.recommendations:
+                    main_rec = response.recommendations[0] if response.recommendations else "Analysis completed"
+                    recommendations.append(f"**{agent_name}**: {main_rec}")
+                
+                # Collect sources
+                if hasattr(response, 'sources') and response.sources:
+                    all_sources.extend(response.sources)
+                
+                # Add to detailed responses
+                detailed_responses[agent_id] = {
+                    "agent_name": agent_name,
+                    "response": response.response,
+                    "confidence": response.confidence,
+                    "recommendations": getattr(response, 'recommendations', [])
+                }
+                
+                total_confidence += response.confidence
         
-        for i, (agent_name, response_text) in enumerate(domain_responses.items(), 1):
-            synthesis.append(f"{i}. **{agent_name}**: {response_text}")
+        # Calculate average confidence
+        avg_confidence = total_confidence / len(agent_responses) if agent_responses else 0.0
         
-        # Add confidence note if low
-        avg_confidence = sum(r.confidence_score for r in agent_responses) / len(agent_responses)
-        if avg_confidence < 0.7:
-            synthesis.append("\n*Note: This recommendation has moderate confidence. Consider consulting local agricultural experts for verification.*")
+        # Create synthesized response
+        if len(recommendations) == 1:
+            final_text = recommendations[0]
+        else:
+            final_text = "Based on my comprehensive analysis:\n\n" + "\n\n".join(recommendations)
         
-        return "\n\n".join(synthesis)
+        # Add confidence qualifier
+        if avg_confidence < 0.6:
+            final_text += "\n\n*Note: This analysis has moderate confidence. Please consult local agricultural experts for verification.*"
+        elif avg_confidence > 0.8:
+            final_text += "\n\n*This recommendation is based on comprehensive agricultural data and best practices.*"
+        
+        return {
+            "final_recommendation": final_text,
+            "confidence": min(avg_confidence, 1.0),
+            "sources": list(set(all_sources)),  # Remove duplicates
+            "details": detailed_responses,
+            "agents_consulted": len(agent_responses)
+        }
     
     async def _send_status_update(self, query_id: str, status: str, message: str, data: Optional[Dict] = None):
         """Send status update via WebSocket"""
