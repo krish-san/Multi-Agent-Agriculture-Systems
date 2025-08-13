@@ -1,0 +1,348 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Core Project Infrastructure and CI/CD Pipeline",
+        "description": "Initialize the project repository, configure the development environment, and set up an automated CI/CD pipeline for testing and deployment.",
+        "details": "Use Git for version control with a protected main branch. Set up a CI/CD pipeline using GitHub Actions or Jenkins. The pipeline should automate linting, unit testing, and building of backend (FastAPI) and frontend (Flutter) applications. Use Docker to containerize services for consistent environments.",
+        "testStrategy": "Verify that commits to feature branches trigger the CI pipeline, run all tests successfully, and that merges to the main branch can be deployed to a staging environment.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Design and Implement Backend Architecture",
+        "description": "Set up the core backend services using FastAPI, configure databases, and establish the API Gateway for service coordination.",
+        "details": "Develop a microservices-oriented architecture using FastAPI. Configure PostgreSQL for cloud data and SQLite for local/offline storage. Implement an API Gateway to route requests to the appropriate services. Define initial data models and schemas using SQLAlchemy.",
+        "testStrategy": "Create health check endpoints for all services. Write API integration tests to ensure the gateway correctly routes requests and that database connections are stable.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Implement Agent Orchestration Framework",
+        "description": "Set up and configure the agent orchestration framework to manage the lifecycle and interaction of specialized AI agents.",
+        "details": "Integrate CrewAI or LangChain as the central orchestrator. Define the base Agent class and the Router/Orchestrator logic. Implement mechanisms for sequential and parallel agent execution and response synthesis. Set up initial logging for agent interactions.",
+        "testStrategy": "Create mock agents and test if the orchestrator can route a simple query to the correct mock agent and synthesize its response. Verify logging output.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Design UI/UX for Mobile App and Web Dashboard",
+        "description": "Create user flow diagrams, wireframes, and high-fidelity mockups for the Flutter mobile app and Streamlit web dashboard.",
+        "details": "Focus on a simple, intuitive interface for low-tech literacy users. Design for both Hindi and English languages. Key screens include: onboarding, main dashboard, chat interface, and notifications. Use Figma for design and prototyping.",
+        "testStrategy": "Conduct usability testing with target user personas (small-scale farmers) using the interactive prototypes. Gather feedback on clarity, ease of use, and language.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Develop Flutter Mobile App Shell",
+        "description": "Build the foundational structure of the cross-platform mobile app, including navigation, state management, and basic UI components.",
+        "details": "Use Flutter to create the app shell. Implement a state management solution like BLoC or Riverpod. Build reusable UI widgets based on the UI/UX design. Set up basic navigation between the main screens (Dashboard, Chat, Settings).",
+        "testStrategy": "Run the app on both Android and iOS emulators. Verify that navigation works as expected and that the basic UI components render correctly according to the design.",
+        "priority": "high",
+        "dependencies": [
+          4
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Implement Offline Data Infrastructure and Sync Mechanism",
+        "description": "Develop the system for storing data locally on the mobile device and synchronizing it with the cloud backend when connectivity is available.",
+        "details": "Use SQLite via the `sqflite` package in Flutter for local storage. Implement a background service to handle data synchronization. Use a differential update strategy to minimize data transfer. Implement a priority queue for syncing critical data first.",
+        "testStrategy": "Test the app in an environment with intermittent connectivity. Verify that data is saved locally when offline and successfully synced when online. Check for data consistency and conflict resolution.",
+        "priority": "high",
+        "dependencies": [
+          2,
+          5
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Integrate Primary Government Data Sources",
+        "description": "Build data ingestion pipelines and API wrappers for key government data sources like IMD, UPAg, and data.gov.in.",
+        "details": "Develop Python scripts to fetch data from IMD (weather), UPAg (market prices), and data.gov.in (schemes, yield data). Create a caching layer to store this data and reduce API calls. Normalize the data into a consistent format for agent use.",
+        "testStrategy": "Write unit tests for each API wrapper to ensure data is fetched and parsed correctly. Set up monitoring to detect API changes or failures from the source.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Develop Multi-Agent Router System",
+        "description": "Implement the central orchestrator's query parsing, intent classification, and agent routing logic.",
+        "details": "Use a fine-tuned small language model or few-shot learning with a larger model (via API) for intent classification on Hindi/English/code-switched text. Implement the routing logic in the LangChain/CrewAI framework to direct queries to specific agent tasks. Develop a confidence score for each routing decision.",
+        "testStrategy": "Create a test suite of 100+ sample queries in all supported languages. Verify that intent is classified with >90% accuracy and routed to the correct agent(s).",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Develop Agent 1: Multilingual Crop Selection Agent",
+        "description": "Build the agent responsible for recommending crop varieties based on location, soil, weather, and market data.",
+        "details": "Train a scikit-learn model (e.g., RandomForestRegressor) for yield prediction using historical data from data.gov.in. Integrate ICRISAT and state agricultural department databases for crop varieties. Implement algorithms to match crops to soil type and climate data.",
+        "testStrategy": "Validate recommendations against established agricultural guidelines for specific regions. Compare yield predictions with historical data. Test with various location and soil type inputs.",
+        "priority": "high",
+        "dependencies": [
+          7,
+          8
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Develop Agent 2: Pest Outbreak Forecaster and Advisor",
+        "description": "Build the agent for pest identification from images, outbreak forecasting, and treatment recommendation.",
+        "details": "Fine-tune a MobileNetV2 model on the PlantVillage dataset for pest identification. Implement an LSTM time-series model using TensorFlow/Keras to forecast outbreaks based on weather and historical pest data. Integrate with the mobile app's camera feature.",
+        "testStrategy": "Test the image classification model against a validation set of pest images to achieve >85% accuracy. Validate outbreak forecasts against historical outbreak events. Verify treatment recommendations are safe and effective.",
+        "priority": "high",
+        "dependencies": [
+          7,
+          8
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement Core Multilingual Support",
+        "description": "Integrate NLP libraries to handle Hindi, English, and code-switched text for queries and responses.",
+        "details": "Use the Indic NLP Library for text normalization, transliteration, and processing of Hindi text. Implement language detection to handle different inputs. Create response templates that can be rendered in either Hindi or English.",
+        "testStrategy": "Test the system with a variety of code-switched queries (e.g., 'mere wheat crop mein pest ka attack hai'). Verify that the system correctly understands the intent and provides a response in the detected language.",
+        "priority": "high",
+        "dependencies": [
+          8
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Develop Agent 3: Finance and Policy Eligibility Simulator",
+        "description": "Build the agent to calculate loan eligibility, discover government subsidies, and advise on crop insurance.",
+        "details": "Implement a rule-based engine for eligibility checks based on data from PM-KISAN and Open Budgets India. Use the PuLP library for basic financial planning optimization. Integrate an OCR library like Tesseract for processing uploaded documents (e.g., land records).",
+        "testStrategy": "Create test cases for different farmer profiles (land size, crop type, income) and verify that the eligibility and recommendations match the official scheme guidelines.",
+        "priority": "medium",
+        "dependencies": [
+          7,
+          8
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Develop Agent 4: Irrigation Scheduling Agent",
+        "description": "Build the agent to calculate crop water requirements and create optimal irrigation schedules.",
+        "details": "Implement the Penman-Monteith equation using `sympy` or a similar library to calculate evapotranspiration (ET). Integrate with the IMD weather API for forecast data. Model soil moisture levels based on soil type, rainfall, and irrigation.",
+        "testStrategy": "Validate water requirement calculations against FAO standards. Test the scheduling logic by simulating different weather scenarios (e.g., unexpected rainfall, heatwave) and verifying schedule adjustments.",
+        "priority": "medium",
+        "dependencies": [
+          7,
+          8
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Develop Agent 5: Market Timing and Yield Optimizer",
+        "description": "Build the agent to forecast commodity prices and recommend optimal selling times.",
+        "details": "Use time-series models like ARIMA or Prophet (using `statsmodels` or `prophet` library) to forecast prices based on historical data from the UPAg API. Provide confidence intervals with forecasts. Integrate with mandi APIs for real-time price checks.",
+        "testStrategy": "Backtest the forecasting models on historical price data to measure accuracy (e.g., MAPE). Verify that the agent can identify historical optimal selling windows.",
+        "priority": "medium",
+        "dependencies": [
+          7,
+          8
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Develop Agent 6: Harvest Planning Agent",
+        "description": "Build the agent to determine optimal harvest dates and provide post-harvest handling advice.",
+        "details": "Develop a computer vision model (e.g., using TensorFlow Lite) to assess crop maturity from photos. Integrate weather forecasts to plan harvesting around adverse weather. Model crop growth stages based on sowing date and degree days.",
+        "testStrategy": "Test the maturity assessment model with a labeled dataset of crop images at different growth stages. Verify that harvest timing recommendations adjust correctly based on weather forecast inputs.",
+        "priority": "medium",
+        "dependencies": [
+          7,
+          8
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Develop Agent 7: Input Materials Advisor",
+        "description": "Build the agent to recommend optimal and cost-effective fertilizers, seeds, and pesticides.",
+        "details": "Use the PuLP library to create an optimization model that recommends the most cost-effective fertilizer mix to meet nutrient requirements. Integrate with a chemical database (e.g., PubChemPy) for pesticide information. Develop a scoring algorithm for seed quality based on certification data.",
+        "testStrategy": "Create scenarios with different soil test results and budget constraints. Verify that the agent provides a balanced and cost-effective nutrient plan. Check pesticide recommendations for safety and compliance.",
+        "priority": "medium",
+        "dependencies": [
+          7,
+          8
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Build Satellite Data Acquisition and Processing Pipeline",
+        "description": "Create an automated pipeline to download, preprocess, and analyze satellite imagery from sources like ISRO Bhuvan and USGS.",
+        "details": "Use Python scripts with libraries like `rasterio` and `GDAL` to process satellite tiles. Automate the download from sources like Sentinel Hub or USGS Earth Explorer. Implement algorithms to calculate NDVI, soil moisture, and land surface temperature. Store the processed data in a time-series format.",
+        "testStrategy": "Verify the pipeline by processing a known area and comparing the calculated NDVI values with established benchmarks. Ensure the pipeline can handle different satellite data formats and resolutions.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Integrate Satellite Metrics into Agents",
+        "description": "Feed processed satellite data (NDVI, soil moisture, etc.) into the decision-making processes of relevant agents.",
+        "details": "Modify the Crop Selection, Pest, and Irrigation agents to accept satellite metrics as input. For example, use NDVI to assess crop health for pest detection, and use satellite soil moisture data to calibrate irrigation schedules.",
+        "testStrategy": "Run agent queries with and without satellite data to confirm that the recommendations are more precise and context-aware when the data is included. For example, an irrigation schedule should change based on low satellite soil moisture readings.",
+        "priority": "medium",
+        "dependencies": [
+          9,
+          10,
+          13,
+          17
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 19,
+        "title": "Implement WhatsApp Bot Integration",
+        "description": "Develop a WhatsApp chatbot interface to allow users to interact with the advisory system via messaging.",
+        "details": "Use the Twilio API for WhatsApp to create the bot. Set up a webhook on the FastAPI backend to receive incoming messages. Format agent responses to be concise and suitable for a chat interface. Handle image submissions for pest identification.",
+        "testStrategy": "Send a series of text and image messages to the bot's number. Verify that the backend receives the messages, routes them to the orchestrator, and sends back a properly formatted response via WhatsApp.",
+        "priority": "medium",
+        "dependencies": [
+          8
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Develop Web Dashboard for Extension Officers",
+        "description": "Create a responsive web dashboard for secondary users to manage multiple farms, view analytics, and generate reports.",
+        "details": "Use Streamlit to build the dashboard. Implement features for multi-farm management, data visualization using Matplotlib or Plotly, and report generation (e.g., PDF export). Connect the dashboard to the main FastAPI backend for data.",
+        "testStrategy": "Log in as an extension officer persona. Add and manage several farms. Verify that analytics dashboards display aggregated data correctly and that reports can be generated without errors.",
+        "priority": "low",
+        "dependencies": [
+          2,
+          4
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 21,
+        "title": "Implement Voice Interface with Local Speech Recognition",
+        "description": "Integrate a speech-to-text model to enable voice-based queries in the mobile app.",
+        "details": "Use a quantized version of a Whisper model running locally on the device for speech recognition to ensure offline capability and privacy. Integrate the model with the mobile app's chat interface to transcribe voice input into text.",
+        "testStrategy": "Test voice input in both Hindi and English in noisy and quiet environments. Measure the Word Error Rate (WER) to ensure it meets the 90%+ accuracy target. Verify that transcribed text is correctly passed to the query router.",
+        "priority": "low",
+        "dependencies": [
+          5,
+          11
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 22,
+        "title": "Implement Security and Compliance Features",
+        "description": "Integrate end-to-end encryption, role-based access control, and ensure compliance with Indian data protection laws.",
+        "details": "Use AES-256 to encrypt sensitive farmer data in the database (at rest) and TLS 1.3 for data in transit. Implement a role-based access control (RBAC) system for different user types (farmer, extension officer). Create comprehensive audit logs for all major actions.",
+        "testStrategy": "Conduct a security audit and penetration testing. Verify that a user with one role cannot access data or features restricted to another role. Check that all sensitive data fields in the database are encrypted.",
+        "priority": "high",
+        "dependencies": [
+          2,
+          5,
+          20
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 23,
+        "title": "Conduct Performance and Load Testing",
+        "description": "Test the system's performance under high load to ensure it can support 1000+ concurrent users and meets response time requirements.",
+        "details": "Use tools like Locust or k6 to simulate high user traffic. Test the response time for simple and complex queries, aiming for <3s and <10s respectively. Monitor CPU, memory, and database usage to identify bottlenecks.",
+        "testStrategy": "Gradually increase the number of virtual users to 1000+. Ensure the system remains stable and response times stay within the defined SLOs. Identify and resolve any performance bottlenecks found.",
+        "priority": "medium",
+        "dependencies": [
+          16,
+          19
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 24,
+        "title": "Setup Production Infrastructure and Monitoring",
+        "description": "Deploy the application to a production environment with auto-scaling, monitoring, and disaster recovery plans.",
+        "details": "Use a cloud provider like AWS or Azure for production deployment. Configure auto-scaling groups for the backend services. Set up a monitoring stack using Prometheus and Grafana to track system health and performance. Implement automated database backups and a disaster recovery plan.",
+        "testStrategy": "Perform a failover test to ensure the disaster recovery plan works. Trigger a scaling event and verify that new instances are launched automatically. Check that monitoring dashboards are correctly reporting system metrics.",
+        "priority": "high",
+        "dependencies": [
+          23
+        ],
+        "status": "todo",
+        "subtasks": []
+      },
+      {
+        "id": 25,
+        "title": "Develop New User Onboarding and Feedback System",
+        "description": "Create a seamless onboarding flow for new users and implement a system to collect user satisfaction feedback.",
+        "details": "In the mobile app, build a step-by-step onboarding process for language selection, location input, and farm details. Integrate a simple feedback mechanism, such as a Net Promoter Score (NPS) survey, that appears after a user receives a recommendation.",
+        "testStrategy": "Have new users go through the onboarding process without assistance and gather feedback. Verify that onboarding data is saved correctly. Test the NPS survey to ensure feedback is collected and stored for analysis.",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "todo",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-13T17:08:38.099Z",
+      "updated": "2025-08-13T17:08:38.099Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
