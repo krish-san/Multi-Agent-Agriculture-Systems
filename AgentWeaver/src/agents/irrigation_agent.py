@@ -345,26 +345,26 @@ class IrrigationAgent(BaseWorkerAgent):
             
             return AgentResponse(
                 agent_id=self.agent_id,
+                agent_name=self.name,
                 query_id=query.query_id,
-                status="completed",
-                response=response_data,
-                confidence=confidence,
-                processing_time=0.0,
+                response_text=f"Generated irrigation schedule with {len(irrigation_schedule)} recommendations",
+                confidence_score=confidence,
                 sources=sources,
-                recommendations=self._format_irrigation_summary(irrigation_schedule, water_budget, satellite_data)
+                recommendations=self._format_irrigation_summary(irrigation_schedule, water_budget, satellite_data),
+                metadata=response_data
             )
             
         except Exception as e:
             logger.error(f"Error processing irrigation query: {e}")
             return AgentResponse(
                 agent_id=self.agent_id,
+                agent_name=self.name,
                 query_id=query.query_id,
-                status="error",
-                response={"error": str(e)},
-                confidence=0.0,
-                processing_time=0.0,
+                response_text=f"Error processing irrigation query: {str(e)}",
+                confidence_score=0.0,
                 sources=[],
-                recommendations=[]
+                recommendations=[],
+                metadata={"error": str(e)}
             )
     
     def _extract_irrigation_context(self, query: AgricultureQuery) -> Dict[str, Any]:
