@@ -134,11 +134,13 @@ async def health_check():
 # Include routers
 from src.api.routers import agents, workflows, websocket
 from src.api.routers.agriculture import router as agriculture_router
+from src.api.satellite_api import router as satellite_router
 
 app.include_router(agents.router)
 app.include_router(workflows.router)
 app.include_router(websocket.router)
 app.include_router(agriculture_router)
+app.include_router(satellite_router)
 
 @app.get("/api/info", tags=["Info"])
 async def api_info():
