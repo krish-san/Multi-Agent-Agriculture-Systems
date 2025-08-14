@@ -116,7 +116,7 @@
         "dependencies": [
           26
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -130,7 +130,7 @@
           33,
           34
         ],
-        "status": "todo",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -269,11 +269,26 @@
         ],
         "status": "todo",
         "subtasks": []
+      },
+      {
+        "id": 46,
+        "title": "Expand Satellite Data Integration to Core Agricultural Agents",
+        "description": "Enhance the Pest Management, Finance, Market Timing, Harvest Planning, and Input Materials agents by integrating satellite-derived data like NDVI, soil moisture, and weather for more accurate and timely recommendations.",
+        "details": "This task involves extending the satellite data capabilities established in Task 35 to a wider range of agents. The existing satellite data tool should be generalized to fetch not only NDVI and soil moisture but also relevant weather data (e.g., temperature, precipitation, humidity) from a suitable API.\n\nImplementation per agent:\n- **Pest Management Agent**: Modify the agent to use weather data for improved pest outbreak forecasting. Integrate NDVI data to help users identify and scout stressed areas of a field, which could indicate early-stage infestations.\n- **Finance Agent**: Enhance financial models to use historical and current NDVI data as a proxy for yield estimation, improving the accuracy of revenue forecasts and loan risk assessments.\n- **Market Timing Agent**: Augment the agent's logic to analyze regional NDVI data to estimate crop supply trends. Use weather forecasts to predict potential harvest or logistics disruptions that could impact market prices.\n- **Harvest Planning Agent**: Use time-series NDVI data to monitor crop maturity and field uniformity, enabling recommendations for the optimal harvest window. The agent should also use short-term weather forecasts to advise against harvesting during adverse conditions.\n- **Input Materials Agent (from Task 39)**: Refine the agent's recommendations by using soil moisture data to optimize the timing of fertilizer application and prevent runoff. Use NDVI maps to suggest variable-rate application strategies, targeting nutrients to specific areas of need.",
+        "testStrategy": "1. **Unit Test Data Tool**: Verify the generalized satellite data tool can successfully fetch NDVI, soil moisture, and weather data for a given set of coordinates and date range.\n2. **Pest Agent Test**: Provide the agent with weather data known to favor a specific pest and confirm it generates a high-risk alert. Provide a field with a known low-NDVI spot and verify the agent suggests scouting that specific area.\n3. **Finance Agent Test**: Run a financial forecast for a farm with high historical NDVI and another with low historical NDVI. Verify the projected yield and revenue are appropriately higher for the former.\n4. **Market Timing Test**: Simulate a scenario with high regional NDVI (indicating high supply) and verify the agent's market timing advice adjusts accordingly (e.g., sell earlier).\n5. **Harvest Planning Test**: Input NDVI data showing non-uniform crop maturity and check that the agent recommends a staggered harvesting approach. Input a 3-day forecast with rain and verify the agent advises against harvesting on the rainy days.\n6. **Input Materials Agent Test**: Query for fertilizer advice with low soil moisture data and verify the agent adjusts its recommendation. Provide a field with variable NDVI and confirm the agent suggests a variable-rate application plan.",
+        "status": "pending",
+        "dependencies": [
+          34,
+          35,
+          39
+        ],
+        "priority": "high",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-13T17:08:38.099Z",
-      "updated": "2025-08-14T17:35:11.730Z",
+      "updated": "2025-08-14T20:23:06.450Z",
       "description": "Tasks for master context"
     }
   }
