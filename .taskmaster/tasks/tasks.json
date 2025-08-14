@@ -40,15 +40,15 @@
       },
       {
         "id": 29,
-        "title": "Implement Multilingual NLP Pre-processing",
-        "description": "Integrate multilingual support for Hindi, English, and code-switched queries, including text normalization and translation where necessary.",
-        "details": "Use the 'Indic NLP Library' for text normalization of Hindi text. Implement a pre-processing step in the API gateway that standardizes incoming queries before they are sent to the orchestrator. For the MVP, use an API-based translation service if local models are too complex.",
-        "testStrategy": "Create a test suite with various Hindi, English, and Hinglish queries. Verify that the pre-processing step correctly normalizes scripts, handles transliteration, and prepares the text for the LLM-based intent classifier. Test edge cases with mixed scripts and dialects.",
-        "priority": "high",
+        "title": "Implement Gemini-based Multilingual Query Processing",
+        "description": "Leverage Gemini AI's native multilingual capabilities to process Hindi, English, and code-switched queries directly, simplifying the pre-processing pipeline.",
+        "status": "done",
         "dependencies": [
           27
         ],
-        "status": "pending",
+        "priority": "high",
+        "details": "Instead of a separate pre-processing pipeline with text normalization and translation, use Gemini AI directly. Craft a system prompt for the orchestrator (Router Agent from Task 27) that instructs Gemini to understand the user's query regardless of the language (Hindi, English, Hinglish) and to process it for intent classification. This approach removes the need for the 'Indic NLP Library' or external translation APIs.",
+        "testStrategy": "Create a test suite with a diverse set of Hindi, English, and Hinglish queries. Verify that the Gemini-powered orchestrator correctly understands and classifies the intent of these queries without an explicit pre-processing step. Test edge cases with mixed scripts, dialects, and complex code-switching to ensure robust performance.",
         "subtasks": []
       },
       {
@@ -284,11 +284,37 @@
         ],
         "priority": "high",
         "subtasks": []
+      },
+      {
+        "id": 47,
+        "title": "Enhance Market Timing Agent with Satellite Data Integration",
+        "description": "Integrate satellite data into the Market Timing Agent to enable NDVI-based yield forecasting, environmental risk assessment, and satellite-adjusted price predictions for more accurate recommendations.",
+        "details": "This task enhances the Market Timing Agent (Task 37) by incorporating satellite-derived metrics. Key implementation steps include:\n1. **Yield Forecasting Model**: Develop a model that uses time-series NDVI data from the acquisition pipeline (Task 34) to forecast crop yields for a user's specific location.\n2. **Risk Assessment Module**: Analyze satellite data (e.g., soil moisture, temperature anomalies) to quantify environmental risks like drought or heat stress that could impact supply.\n3. **Price Model Enhancement**: Modify the agent's existing price forecasting model (e.g., Prophet/ARIMA) to use the new yield forecasts and risk assessments as input features, creating a more robust supply-demand model.\n4. **Confidence Interval Calculation**: Ensure the agent's final recommendation ('Sell', 'Wait') is accompanied by a statistically derived confidence level (target 95%) based on the prediction intervals of the enhanced model.",
+        "testStrategy": "1. **Yield Model Validation**: Test the yield forecasting model against a hold-out dataset of historical NDVI and known yield data. Ensure the Mean Absolute Percentage Error (MAPE) is below an acceptable threshold.\n2. **Price Model Backtesting**: Compare the forecasting accuracy (RMSE/MAPE) of the satellite-enhanced price model against the baseline model from Task 37 on historical data. The new model must demonstrate a significant improvement.\n3. **Scenario Testing**: Create test cases with high-risk environmental data (e.g., simulated drought) and verify the agent adjusts its price predictions and recommendations appropriately.\n4. **End-to-End Integration Test**: For a given location, confirm the agent successfully queries the generalized satellite data tool (from Task 46), processes it through the yield and price models, and returns a coherent recommendation with the correct confidence score.",
+        "status": "done",
+        "dependencies": [
+          37,
+          34,
+          46
+        ],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": 48,
+        "title": "Market Timing Agent Satellite Integration - COMPLETED",
+        "description": "Successfully integrated satellite data into Market Timing Agent for advanced yield forecasting and market intelligence",
+        "details": "",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-13T17:08:38.099Z",
-      "updated": "2025-08-14T20:23:06.450Z",
+      "updated": "2025-08-14T21:45:36.469Z",
       "description": "Tasks for master context"
     }
   }
