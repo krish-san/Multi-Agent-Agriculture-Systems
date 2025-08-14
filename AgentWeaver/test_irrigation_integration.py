@@ -51,13 +51,13 @@ async def test_irrigation_satellite_integration():
         print("Processing irrigation query with satellite integration...")
         response = await agent.process_query(query)
         
-        print(f"\n✅ Status: {response.status}")
-        print(f"🎯 Confidence: {response.confidence:.2%}")
+        print(f"\n✅ Response: {response.response_text}")
+        print(f"🎯 Confidence: {response.confidence_score:.2%}")
         print(f"📚 Sources: {', '.join(response.sources)}")
         
         # Display irrigation recommendations
-        if response.status == "completed":
-            response_data = response.response
+        if response.confidence_score > 0:
+            response_data = response.metadata or {}
             
             # Show satellite insights
             if "satellite_insights" in response_data and response_data["satellite_insights"]:
