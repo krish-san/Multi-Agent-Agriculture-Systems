@@ -1,0 +1,240 @@
+/* Layout.css - Styles for the main layout with sidebar */
+
+.dashboard {
+  height: 100vh;
+  display: flex;
+  background-color: var(--bg-color, #F0F2F5);
+  color: var(--text-dark, #374151);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  overflow: hidden;
+}
+
+/* Sidebar styling */
+.sidebar {
+  width: var(--sidebar-width, 260px);
+  background-color: var(--sidebar-bg, #2F3B4B);
+  color: var(--text-light, #FFFFFF);
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 10; /* Ensure sidebar is above most content but below chatbot */
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--primary-color, #DFBA47);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.user-info h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.user-info p {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* Navigation items */
+.nav-items {
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 20; /* Higher z-index for nav items to ensure they're clickable */
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: var(--text-light, #FFFFFF);
+  position: relative;
+  z-index: 25; /* Ensure it's above other elements */
+}
+
+.nav-item.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  position: relative;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background-color: var(--primary-color, #DFBA47);
+  border-radius: 0 4px 4px 0;
+}
+
+.nav-item:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.07);
+}
+
+.nav-icon {
+  margin-right: 0.75rem;
+}
+
+.nav-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* System stats in sidebar */
+.system-stats {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.stat-icon {
+  margin-right: 0.5rem;
+  opacity: 0.9;
+}
+
+.stat-label {
+  flex: 1;
+  opacity: 0.8;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: var(--text-light, #FFFFFF);
+  background: none;
+  padding: 0;
+  min-width: 1.5rem;
+  text-align: left;
+}
+
+.stat-value.connected {
+  color: var(--text-light, #FFFFFF);
+  background: none;
+}
+
+.stat-value.disconnected {
+  color: var(--text-light, #FFFFFF);
+  background: none;
+}
+
+/* Connected users section */
+.connected-users {
+  margin-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.5rem;
+}
+
+.connected-users h4 {
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+  opacity: 0.8;
+}
+
+.user-avatars {
+  display: flex;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--accent-color, #18A1CC);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-right: -10px;
+  border: 2px solid var(--sidebar-bg, #2F3B4B);
+}
+
+.user-avatar:last-child {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 80px;
+    padding: 1.5rem 0.5rem;
+  }
+  
+  .user-profile {
+    justify-content: center;
+    padding-bottom: 1rem;
+  }
+  
+  .avatar {
+    margin-right: 0;
+  }
+  
+  .user-info, .stat-label, .stat-icon, .connected-users h4 {
+    display: none;
+  }
+  
+  .nav-name {
+    display: none;
+  }
+  
+  .nav-item {
+    justify-content: center;
+    padding: 0.75rem;
+  }
+  
+  .nav-icon {
+    margin-right: 0;
+    font-size: 1.2rem;
+  }
+  
+  .stat-item {
+    justify-content: center;
+  }
+  
+  .system-stats, .connected-users {
+    align-items: center;
+  }
+}

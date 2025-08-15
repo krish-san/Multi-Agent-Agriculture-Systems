@@ -165,75 +165,7 @@ const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({
         </div>
       )}
 
-      {/* Steps Timeline */}
-      <div className="workflow-steps">
-        <h4>Execution Steps</h4>
-        <div className="steps-timeline">
-          {workflow.steps.map((step, index) => (
-            <div
-              key={step.id}
-              className={`step-item ${step.status}`}
-              onClick={() => onStepClick?.(step)}
-              style={{ cursor: onStepClick ? 'pointer' : 'default' }}
-            >
-              {/* Step Connection Line */}
-              {index > 0 && (
-                <div className="step-connector">
-                  <div className="connector-line" />
-                </div>
-              )}
-              
-              {/* Step Content */}
-              <div className="step-content">
-                <div className="step-header">
-                  <span className="step-icon">{getStepIcon(step.status)}</span>
-                  <span className="step-name">{step.name}</span>
-                  <span className={`step-status ${step.status}`}>
-                    {step.status.replace('-', ' ').toUpperCase()}
-                  </span>
-                </div>
-                
-                {showDetails && (
-                  <div className="step-details">
-                    <div className="step-meta">
-                      {step.agent && (
-                        <span className="step-agent">Agent: {step.agent}</span>
-                      )}
-                      {step.duration && (
-                        <span className="step-duration">
-                          Duration: {formatDuration(step.duration)}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {step.output && (
-                      <div className="step-output">
-                        <strong>Output:</strong>
-                        <pre>{step.output}</pre>
-                      </div>
-                    )}
-                    
-                    {step.error && (
-                      <div className="step-error">
-                        <strong>Error:</strong>
-                        <pre>{step.error}</pre>
-                      </div>
-                    )}
-                  </div>
-                )}
-                
-                {/* Step Progress Bar */}
-                <div className="step-progress">
-                  <div 
-                    className="step-progress-bar"
-                    style={{ width: `${calculateStepProgress(step)}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Removed Execution Steps section as it's now in a separate card */}
     </div>
   );
 };

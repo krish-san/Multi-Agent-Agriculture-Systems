@@ -1,7 +1,9 @@
 import './App.css'
+import './components/Dashboard.css'
 import AgentList from './components/AgentList'
 import WorkflowVisualizer from './components/WorkflowVisualizer'
 import WebSocketDebug from './components/WebSocketDebug'
+import ChatBot from './components/ChatBot'
 import type { Agent } from './components/AgentList'
 import type { Workflow } from './components/WorkflowVisualizer'
 import { useWebSocket, useAgentUpdates, useWorkflowUpdates } from './hooks/useWebSocket'
@@ -137,13 +139,11 @@ function App() {
     }
   });
 
-  // Monitor connection status changes in App component
   useEffect(() => {
     console.log(`🔄 App component: connectionStatus changed to "${connectionStatus}"`);
     console.log(`   isConnected: ${isConnected}`);
   }, [connectionStatus, isConnected]);
 
-  // Debug function to check WebSocket status
   (window as any).debugWebSocket = () => {
     console.log('=== WebSocket Debug Info ===');
     console.log('Current connection status:', connectionStatus);
@@ -155,23 +155,13 @@ function App() {
     console.log('============================');
   };
 
-  // Remove the WebSocketStatusTest since it's working now
-  // const testComponent = <WebSocketStatusTest />;
-
-  // Hook for real-time agent updates (reuse main connection)
   const { getAllAgents } = useAgentUpdates();
-  
-  // Hook for real-time workflow updates (reuse main connection)  
   const { getAllWorkflows, getActiveWorkflows } = useWorkflowUpdates();
-  
-  // Get real-time agent data
+
   const realTimeAgents = getAllAgents();
-  
-  // Get real-time workflow data
   const realTimeWorkflows = getAllWorkflows();
   const activeWorkflows = getActiveWorkflows();
-  
-  // Map backend status to frontend status types
+
   const mapBackendStatusToFrontend = (backendStatus: string): Agent['status'] => {
     const statusMap: Record<string, Agent['status']> = {
       'idle': 'idle',
@@ -183,17 +173,12 @@ function App() {
       'offline': 'offline',
       'disconnected': 'offline'
     };
-    
     return statusMap[backendStatus?.toLowerCase()] || 'idle';
   };
-  
-  // Merge mock workflow with real-time updates
+
   const currentWorkflow = useMemo(() => {
-    // If we have real-time workflows, use the first active one
     if (activeWorkflows.length > 0) {
       const rtWorkflow = activeWorkflows[0];
-      
-      // Convert real-time workflow data to frontend format
       return {
         id: rtWorkflow.id,
         name: rtWorkflow.details?.name || `Workflow ${rtWorkflow.id}`,
@@ -211,25 +196,17 @@ function App() {
         metadata: rtWorkflow.details
       } as Workflow;
     }
-    
-    // Otherwise, use mock data
     return mockWorkflow;
   }, [activeWorkflows]);
-  
-  // Merge mock data with real-time updates
+
   const mergedAgents = useMemo(() => {
     const agentMap = new Map<string, Agent>();
-    
-    // Start with mock data
     mockAgents.forEach(agent => {
       agentMap.set(agent.id, agent);
     });
-    
-    // Override with real-time data
     realTimeAgents.forEach(rtAgent => {
       const existingAgent = agentMap.get(rtAgent.id);
       if (existingAgent) {
-        // Update existing agent with real-time data
         agentMap.set(rtAgent.id, {
           ...existingAgent,
           status: mapBackendStatusToFrontend(rtAgent.status),
@@ -237,7 +214,6 @@ function App() {
           currentTask: rtAgent.details?.current_task || existingAgent.currentTask
         });
       } else {
-        // Add new agent from real-time data
         agentMap.set(rtAgent.id, {
           id: rtAgent.id,
           name: rtAgent.details?.name || `Agent ${rtAgent.id}`,
@@ -252,13 +228,11 @@ function App() {
         });
       }
     });
-    
     return Array.from(agentMap.values());
   }, [realTimeAgents]);
 
   const handleAgentClick = (agent: Agent) => {
     console.log('Agent clicked:', agent);
-    // Show agent details or perform action
   };
 
   const getConnectionStatusDisplay = () => {
@@ -284,78 +258,347 @@ function App() {
     }
   };
 
-  // Count active agents
   const activeAgentCount = mergedAgents.filter(agent => 
     ['running', 'busy'].includes(agent.status)
   ).length;
 
   const handleStepClick = (step: any) => {
     console.log('Workflow step clicked:', step);
-    // Show step details or perform action
   };
 
+  const navItems = [
+    { icon: '📊', name: 'Dashboard', active: true },
+    { icon: '✈️', name: 'Workflows', active: false },
+    { icon: '💼', name: 'Agents', active: false },
+    { icon: '📝', name: 'Reports', active: false },
+    { icon: '📈', name: 'Statistics', active: false },
+    { icon: '⚙️', name: 'Settings', active: false },
+  ];
+
   return (
-    <div className="dashboard">
-      {/* <WebSocketStatusTest /> */}
-      <header className="dashboard-header">
-        <h1>AgentWeaver Dashboard</h1>
-        <div className="header-info">
-          <span 
-            className="connection-status"
-            onClick={handleConnectionToggle}
-            style={{ cursor: 'pointer' }}
-            title={`Click to toggle connection. Current: ${connectionStatus}`}
-          >
-            {getConnectionStatusDisplay()}
-          </span>
-          <span className="timestamp">{new Date().toLocaleTimeString()}</span>
-        </div>
-      </header>
+    <div className="dashboard-content">
+      {/* ChatBot is now in Layout component */}
+        <header className="dashboard-header">
+          <div className="search-bar">
+            <input type="text" placeholder="Search workflows, agents, or reports..." />
+            <button className="search-btn">Search</button>
+          </div>
+          <div className="header-info">
+            <span 
+              className="connection-status"
+              onClick={handleConnectionToggle}
+              style={{ cursor: 'pointer' }}
+              title={`Click to toggle connection. Current: ${connectionStatus}`}
+            >
+              {getConnectionStatusDisplay()}
+            </span>
+            <span className="timestamp">{new Date().toLocaleTimeString()}</span>
+          </div>
+        </header>
 
-      <main className="dashboard-main">
-        <section className="agents-panel">
-          <h2>
-            Agent Status ({mergedAgents.length})
-            {activeAgentCount > 0 && (
-              <span className="active-count"> • {activeAgentCount} Active</span>
-            )}
-          </h2>
-          <AgentList 
-            agents={mergedAgents} 
-            onAgentClick={handleAgentClick}
-          />
-        </section>
-
-        <section className="workflow-panel">
-          <h2>
-            Workflow Execution
-            {activeWorkflows.length > 0 && (
-              <span className="active-count"> • {activeWorkflows.length} Active</span>
-            )}
-          </h2>
-          <WorkflowVisualizer 
-            workflow={currentWorkflow}
-            onStepClick={handleStepClick}
-            showDetails={true}
-          />
-          {lastMessage && (
-            <div className="last-message">
-              <h4>Last WebSocket Message:</h4>
-              <pre>{JSON.stringify(lastMessage, null, 2)}</pre>
+        <main className="dashboard-main">
+          {/* Metrics Row */}
+          <div className="metrics-row" style={{ 
+            gridColumn: "1 / -1", 
+            display: "flex", 
+            gap: "1.5rem", 
+            marginBottom: "1.5rem" 
+          }}>
+            <div className="metric-card" style={{
+              flex: 1,
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              padding: "1.2rem",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+              display: "flex",
+              flexDirection: "column",
+              transition: "all 0.3s ease",
+              border: "1px solid rgba(240, 242, 245, 0.8)",
+              position: "relative",
+              overflow: "hidden"
+            }}>
+              <span style={{ fontSize: "0.8rem", color: "#6B7280", fontWeight: "500" }}>Active Agents</span>
+              <div style={{ display: "flex", alignItems: "baseline", marginTop: "0.5rem" }}>
+                <span style={{ fontSize: "1.8rem", fontWeight: "700", color: "#18A1CC" }}>{activeAgentCount}</span>
+                <span style={{ fontSize: "1rem", marginLeft: "0.5rem", color: "#22C55E" }}>/{mergedAgents.length}</span>
+              </div>
+              <span style={{ fontSize: "0.75rem", color: "#6B7280", marginTop: "0.5rem" }}>Working on tasks</span>
+              <div style={{ 
+                position: "absolute", 
+                right: "-10px", 
+                bottom: "-10px", 
+                width: "60px", 
+                height: "60px", 
+                borderRadius: "50%", 
+                backgroundColor: "rgba(24, 161, 204, 0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1.5rem"
+              }}>🤖</div>
             </div>
-          )}
-        </section>
-      </main>
+            
+            <div className="metric-card" style={{
+              flex: 1,
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              padding: "1.2rem",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+              display: "flex",
+              flexDirection: "column",
+              transition: "all 0.3s ease",
+              border: "1px solid rgba(240, 242, 245, 0.8)",
+              position: "relative",
+              overflow: "hidden"
+            }}>
+              <span style={{ fontSize: "0.8rem", color: "#6B7280", fontWeight: "500" }}>Active Workflows</span>
+              <div style={{ display: "flex", alignItems: "baseline", marginTop: "0.5rem" }}>
+                <span style={{ fontSize: "1.8rem", fontWeight: "700", color: "#DFBA47" }}>{activeWorkflows.length}</span>
+                <span style={{ fontSize: "1rem", marginLeft: "0.5rem", color: "#22C55E" }}>/{realTimeWorkflows.length || 1}</span>
+              </div>
+              <span style={{ fontSize: "0.75rem", color: "#6B7280", marginTop: "0.5rem" }}>In execution</span>
+              <div style={{ 
+                position: "absolute", 
+                right: "-10px", 
+                bottom: "-10px", 
+                width: "60px", 
+                height: "60px", 
+                borderRadius: "50%", 
+                backgroundColor: "rgba(223, 186, 71, 0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1.5rem"
+              }}>📊</div>
+            </div>
+            
+            <div className="metric-card" style={{
+              flex: 1,
+              backgroundColor: "#fff",
+              borderRadius: "12px",
+              padding: "1.2rem",
+              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+              display: "flex",
+              flexDirection: "column",
+              transition: "all 0.3s ease",
+              border: "1px solid rgba(240, 242, 245, 0.8)",
+              position: "relative",
+              overflow: "hidden"
+            }}>
+              <span style={{ fontSize: "0.8rem", color: "#6B7280", fontWeight: "500" }}>Overall Progress</span>
+              <div style={{ display: "flex", alignItems: "baseline", marginTop: "0.5rem" }}>
+                <span style={{ fontSize: "1.8rem", fontWeight: "700", color: "#22C55E" }}>
+                  {Math.round(currentWorkflow.progress * 100)}%
+                </span>
+              </div>
+              <div style={{ marginTop: "0.5rem", height: "6px", backgroundColor: "rgba(34, 197, 94, 0.1)", borderRadius: "3px", overflow: "hidden" }}>
+                <div style={{ 
+                  height: "100%", 
+                  width: `${Math.round(currentWorkflow.progress * 100)}%`, 
+                  backgroundColor: "#22C55E",
+                  borderRadius: "3px",
+                  transition: "width 0.5s ease"
+                }}></div>
+              </div>
+              <span style={{ fontSize: "0.75rem", color: "#6B7280", marginTop: "0.5rem" }}>Tasks completed</span>
+              <div style={{ 
+                position: "absolute", 
+                right: "-10px", 
+                bottom: "-10px", 
+                width: "60px", 
+                height: "60px", 
+                borderRadius: "50%", 
+                backgroundColor: "rgba(34, 197, 94, 0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "1.5rem"
+              }}>✅</div>
+            </div>
+          </div>
 
-      <footer className="dashboard-footer">
-        <div className="system-stats">
-          <span>Active Workflows: {activeWorkflows.length}</span>
-          <span>Total Workflows: {realTimeWorkflows.length || 1}</span>
-          <span>Connected Clients: {isConnected ? 1 : 0}</span>
-          <span>Active Agents: {activeAgentCount}</span>
-          <span>System Status: {isConnected ? 'Ready' : 'Disconnected'}</span>
-        </div>
-      </footer>
+          <section className="agents-panel dashboard-card">
+            <div className="dashboard-card-header">
+              <h3 className="dashboard-card-title">
+                <span>Agent Status ({mergedAgents.length})</span>
+                {activeAgentCount > 0 && (
+                  <span className="active-count"> • {activeAgentCount} Active</span>
+                )}
+              </h3>
+              <div className="card-actions">
+                <span style={{ cursor: 'pointer', fontSize: '0.9rem', opacity: '0.7' }} title="Filter Agents">🔍</span>
+              </div>
+            </div>
+            <div className="dashboard-card-body">
+              <AgentList 
+                agents={mergedAgents} 
+                onAgentClick={handleAgentClick}
+              />
+            </div>
+            <div className="dashboard-card-footer">
+              <span>Last updated: {new Date().toLocaleTimeString()}</span>
+            </div>
+          </section>
+
+          <div className="workflow-container">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {/* Workflow Execution Card */}
+              <div className="dashboard-card">
+                <div className="dashboard-card-header">
+                  <h3 className="dashboard-card-title">
+                    <span>Workflow Execution</span>
+                    {activeWorkflows.length > 0 && (
+                      <span className="active-count"> • {activeWorkflows.length} Active</span>
+                    )}
+                  </h3>
+                  <div className="card-actions">
+                    <span style={{ cursor: 'pointer', fontSize: '1.1rem', opacity: '0.7' }} title="View all workflows">⋮</span>
+                  </div>
+                </div>
+                <div className="dashboard-card-body">
+                  <WorkflowVisualizer 
+                    workflow={currentWorkflow}
+                    onStepClick={handleStepClick}
+                    showDetails={false}
+                  />
+                </div>
+                <div className="dashboard-card-footer">
+                  <span>Started: {new Date(currentWorkflow.startTime).toLocaleString()}</span>
+                  <div className="card-actions-footer">
+                    <button className="action-button">View Details</button>
+                    <button className="action-button">Export Data</button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Execution Steps Card */}
+              <div className="dashboard-card">
+                <div className="dashboard-card-header">
+                  <h3 className="dashboard-card-title">
+                    <span>Execution Steps</span>
+                    <span className="active-count"> • {currentWorkflow.steps.filter(step => step.status === 'in-progress').length} Running</span>
+                  </h3>
+                  <div className="card-actions">
+                    <span style={{ cursor: 'pointer', fontSize: '0.9rem', opacity: '0.7' }} title="Expand all steps">📊</span>
+                  </div>
+                </div>
+                <div className="dashboard-card-body" style={{ padding: '1rem' }}>
+                  <div className="steps-container" style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                    {currentWorkflow.steps.map((step) => (
+                      <div 
+                        key={step.id}
+                        onClick={() => handleStepClick(step)}
+                        className="step-item"
+                        style={{ 
+                          marginBottom: '0.75rem', 
+                          padding: '0.85rem 1rem', 
+                          backgroundColor: '#f8f9fa', 
+                          borderRadius: '8px',
+                          borderLeft: `4px solid ${step.status === 'completed' ? '#22C55E' : 
+                                                 step.status === 'in-progress' ? '#18A1CC' : 
+                                                 step.status === 'failed' ? '#EF4444' : '#F59E0B'}`,
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                          transition: 'all 0.25s ease',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <strong>{step.name}</strong>
+                          <span style={{ 
+                            padding: '0.25rem 0.75rem',
+                            fontSize: '0.7rem',
+                            fontWeight: '600',
+                            borderRadius: '30px',
+                            textTransform: 'uppercase',
+                            backgroundColor: step.status === 'completed' ? 'rgba(34, 197, 94, 0.1)' :
+                                            step.status === 'in-progress' ? 'rgba(24, 161, 204, 0.1)' :
+                                            step.status === 'failed' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
+                            color: step.status === 'completed' ? '#22C55E' : 
+                                  step.status === 'in-progress' ? '#18A1CC' : 
+                                  step.status === 'failed' ? '#EF4444' : '#F59E0B'
+                          }}>
+                            {step.status.replace('-', ' ')}
+                          </span>
+                        </div>
+                        {step.agent && (
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            marginTop: '0.5rem',
+                            padding: '0.35rem 0.75rem',
+                            backgroundColor: 'rgba(0,0,0,0.03)',
+                            borderRadius: '6px',
+                            width: 'fit-content'
+                          }}>
+                            <span style={{ fontSize: '0.8rem', marginRight: '0.25rem', opacity: '0.7' }}>🤖</span>
+                            <small style={{ color: '#6B7280', fontSize: '0.8rem', fontWeight: '500' }}>
+                              Agent: {step.agent}
+                            </small>
+                          </div>
+                        )}
+                        {step.status === 'completed' && step.output && (
+                          <div style={{ marginTop: '0.5rem', position: 'relative' }}>
+                            <div style={{ 
+                              height: '1.5rem', 
+                              overflow: 'hidden',
+                              fontSize: '0.75rem',
+                              color: '#6B7280',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              position: 'relative',
+                              paddingRight: '3rem'
+                            }}>
+                              <span style={{ opacity: '0.7' }}>Output: </span>
+                              {step.output?.split('\n')[0]}
+                              <span style={{ 
+                                position: 'absolute',
+                                right: '0',
+                                top: '0',
+                                padding: '0 0.5rem',
+                                backgroundColor: 'rgba(248,249,250,0.8)',
+                                color: '#18A1CC',
+                                fontSize: '0.7rem',
+                                fontWeight: '500'
+                              }}>View</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="dashboard-card-footer">
+                  <div>
+                    <span>Total Steps: {currentWorkflow.steps.length}</span>
+                    <span style={{ 
+                      marginLeft: '1rem',
+                      fontWeight: '500',
+                      color: currentWorkflow.status === 'completed' ? '#22C55E' :
+                             currentWorkflow.status === 'running' ? '#18A1CC' : '#6B7280'
+                    }}>
+                      {Math.round(currentWorkflow.progress * 100)}% Complete
+                    </span>
+                  </div>
+                  <div className="card-actions-footer">
+                    <button className="action-button">Expand All</button>
+                    <button className="action-button">Log View</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {lastMessage && (
+              <section className="last-message-panel">
+                <h2>WebSocket Debug</h2>
+                <div className="last-message">
+                  <h4>Last Message:</h4>
+                  <pre>{JSON.stringify(lastMessage, null, 2)}</pre>
+                </div>
+              </section>
+            )}
+          </div>
+        </main>
+      
     </div>
   )
 }
