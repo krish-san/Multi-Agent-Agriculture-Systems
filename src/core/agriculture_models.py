@@ -74,6 +74,7 @@ class QueryDomain(str, Enum):
     MARKET_TIMING = "market_timing"
     HARVEST_PLANNING = "harvest_planning"
     INPUT_MATERIALS = "input_materials"
+    CROP_MANAGEMENT = "crop_management"
     GENERAL = "general"
 
 

@@ -64,9 +64,12 @@ const ChatBot: React.FC = () => {
   // Update unread count when new messages arrive and chat is not expanded
   useEffect(() => {
     if (!isExpanded && messages.length > 0 && messages[messages.length - 1].sender === 'bot') {
-      setUnreadCount(prev => prev + 1);
-    }
-  }, [messages, isExpanded]);
+      const botMessageCount = messages.filter(msg => msg.sender === 'bot').length;
+    setUnreadCount(botMessageCount);
+  } else if (isExpanded) {
+    setUnreadCount(0);
+  }
+}, [messages, isExpanded]);
 
   const toggleChat = () => {
     setIsExpanded(!isExpanded);
@@ -315,5 +318,6 @@ const ChatBot: React.FC = () => {
     </div>
   );
 };
+console.log('ChatBot re-rendered at:', new Date().toISOString());
 
 export default ChatBot;

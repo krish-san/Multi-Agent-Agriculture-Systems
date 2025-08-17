@@ -36,6 +36,17 @@ const mockAgents: Agent[] = [
   },
   {
     id: 'agent-003',
+    name: 'Harvest Planning Agent',
+    status: 'idle',
+    lastActivity: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    metrics: {
+      tasksCompleted: 56,
+      averageExecutionTime: 4.1,
+      successRate: 0.80
+    }
+  },
+  {
+    id: 'agent-004',
     name: 'API Interaction Agent',
     status: 'busy',
     lastActivity: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
@@ -47,7 +58,7 @@ const mockAgents: Agent[] = [
     }
   },
   {
-    id: 'agent-004',
+    id: 'agent-005',
     name: 'Backup Agent',
     status: 'error',
     lastActivity: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
@@ -59,7 +70,7 @@ const mockAgents: Agent[] = [
     }
   },
   {
-    id: 'agent-005',
+    id: 'agent-006',
     name: 'Monitor Agent',
     status: 'offline',
     lastActivity: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),

@@ -2,7 +2,7 @@
 Agriculture API Router
 Provides REST API endpoints for agricultural queries and agent management.
 """
-
+import asyncio
 import logging
 from typing import Dict, Any, Optional
 from datetime import datetime
@@ -13,7 +13,8 @@ from ...core.agriculture_models import (
     AgricultureQuery, QueryDomain, Language, Location, FarmProfile
 )
 from ...services.agriculture_integration import get_agriculture_service
-
+from src.agents.harvest_planning_agent import HarvestPlanningAgent
+from src.core.agriculture_models import AgricultureQuery
 
 logger = logging.getLogger(__name__)
 
@@ -332,3 +333,43 @@ async def test_agriculture_system() -> Dict[str, Any]:
             "error": str(e),
             "message": "Agriculture system test failed"
         }
+# Initialize the harvest planning agent
+harvest_agent = HarvestPlanningAgent()
+
+@router.post("/query")
+async def process_agriculture_query(query: AgricultureQuery):
+    """Process agriculture query and return agent response"""
+    try:
+        logger.info(f"Processing query: {query.query_text}")
+        
+        # Process query with harvest planning agent
+        response = await harvest_agent.process_query(query)
+        
+        return {
+            "status": "success",
+            "query_id": query.query_id,
+            "response": {
+                "agent_name": response.agent_name,
+                "response_text": response.response_text,
+                "confidence_score": response.confidence_score,
+                "recommendations": response.recommendations,
+                "reasoning": response.reasoning,
+                "sources": response.sources if hasattr(response, 'sources') else [],
+                "next_steps": response.next_steps if hasattr(response, 'next_steps') else [],
+                "metadata": response.metadata if hasattr(response, 'metadata') else {}
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error processing agriculture query: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to process query: {str(e)}")
+
+@router.get("/agents/harvest")
+async def get_harvest_agent_status():
+    """Get harvest planning agent status"""
+    return {
+        "agent_id": "harvest_planning_agent",
+        "name": "Harvest Planning Agent",
+        "status": "active",
+        "capabilities": ["harvest_timing", "crop_calendar", "weather_analysis"]
+    }

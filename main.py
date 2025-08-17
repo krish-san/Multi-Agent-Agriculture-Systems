@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 import logging
 
+
 # Add src to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
@@ -20,7 +21,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 from src.orchestration.supervisor import SupervisorNode
 from src.core.redis_config import RedisConnectionManager
 from src.api.models import SystemStatusResponse
-
+from src.agents.harvest_planning_agent import HarvestPlanningAgent
+from src.core.agriculture_models import AgricultureQuery, Language, Location
+from src.api.routers import agriculture
 # Logging setup
 logging.basicConfig(
     level=logging.INFO,
