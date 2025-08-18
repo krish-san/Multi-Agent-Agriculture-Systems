@@ -2,7 +2,38 @@
 
 > **Revolutionizing Indian Agriculture with AI and Satellite Intelligence**
 
-[![Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)](https://github.com/akv2011/Mult2. **Web Dashboard Development**
+[![Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)](https://github.com/akv2011/Multi-Agent-Agriculture-Systems)
+[![Progress](https://img.shields.io/badge/Progress-65%25%20Complete-blue.svg)](https://github.com/akv2011/Multi-Agent-Agriculture-Systems)
+[![Agents](https://img.shields.io/badge/Agents-5%2F7%20Satellite%20Enhanced-brightgreen.svg)](https://github.com/akv2011/Multi-Agent-Agriculture-Systems)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+A cutting-edge **multi-agent agricultural intelligence platform** that combines **satellite data**, **AI-powered decision making**, and **multilingual support** to empower Indian farmers with space-age agricultural insights.
+
+---
+
+## 🚀 Project Overview
+
+**Multi-Agent Agriculture Systems** is an advanced agricultural decision support platform that leverages:
+
+- 🛰️ **Satellite Data Integration** for real-time crop monitoring
+- 🤖 **7 Specialized AI Agents** for comprehensive farm management  
+- 🗣️ **Gemini-Powered Multilingual Support** (Hindi, English, Code-Switched)
+- 📊 **Real-time Analytics** with confidence scoring
+- 🌐 **Modern Web Interface** with chat-based interaction
+
+### 🎯 Mission Statement
+
+*"To democratize access to advanced agricultural intelligence by bringing satellite-powered insights and AI-driven recommendations directly to Indian farmers in their native language."*
+
+---
+
+## 🛠️ **Current Development Priorities**
+
+1. **Complete Remaining Agents** (2/7)
+   - Harvest Planning Agent satellite integration
+   - Input Materials Agent satellite integration
+
+2. **Web Dashboard Development**
    - React-based agricultural interface
    - Real-time satellite data visualization
    - Farmer-friendly multilingual design
@@ -12,18 +43,13 @@
    - Explainable AI and confidence scoring
    - WhatsApp integration for farmer outreach
 
-### **🔗 Documentation Links**
+### **🔗 Quick Links**
 
-- 📚 **[Technical Documentation](docs/README.md)** - Detailed implementation guide
-- 🛰️ **[Satellite System Guide](docs/SATELLITE_SYSTEM_SUMMARY.md)** - Satellite integration details
-- 🤖 **[Gemini AI Integration](docs/GEMINI_MULTILINGUAL_IMPLEMENTATION_GUIDE.md)** - Multilingual processing
-- 📊 **[Project Status](docs/PROJECT_STATUS_COMPREHENSIVE_SUMMARY.md)** - Comprehensive progress tracking
-- 🚀 **[Market Timing Agent](docs/MARKET_TIMING_SATELLITE_INTEGRATION_SUMMARY.md)** - Latest completiongent-Agriculture-Systems)
-[![Progress](https://img.shields.io/badge/Progress-65%25%20Complete-blue.svg)](https://github.com/akv2011/Multi-Agent-Agriculture-Systems)
-[![Agents](https://img.shields.io/badge/Agents-5%2F7%20Satellite%20Enhanced-brightgreen.svg)](https://github.com/akv2011/Multi-Agent-Agriculture-Systems)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-A cutting-edge **multi-agent agricultural intelligence platform** that combines **satellite data**, **AI-powered decision making**, and **multilingual support** to empower Indian farmers with space-age agricultural insights.
+- 📚 **[Getting Started Guide](docs/GETTING_STARTED.md)** - Setup and installation
+- 🛰️ **[Satellite System Overview](docs/SATELLITE_SYSTEM_SUMMARY.md)** - Satellite integration details
+- 🤖 **[Gemini AI Integration](docs/GEMINI_INTEGRATION_SUMMARY.md)** - Multilingual processing
+- 📊 **[Project Status](docs/PROJECT_STATUS_COMPREHENSIVE_SUMMARY.md)** - Current progress
+- 🚀 **[Market Timing Integration](docs/MARKET_TIMING_SATELLITE_INTEGRATION_SUMMARY.md)** - Latest features
 
 ---
 
@@ -132,73 +158,44 @@ graph TB
 
 ## 🚀 Quick Start
 
+> **👀 For detailed setup instructions, see [Getting Started Guide](docs/GETTING_STARTED.md)**
+
 ### Prerequisites
 ```bash
-Python 3.9+
-Node.js 16+
-Git
+Python 3.9+ | Node.js 16+ | Git | Gemini API Key
 ```
 
-### Installation
+### Installation (Quick Version)
 
-1. **Clone the Repository**
 ```bash
+# Clone and setup
 git clone https://github.com/akv2011/Multi-Agent-Agriculture-Systems.git
 cd Multi-Agent-Agriculture-Systems
-```
-
-2. **Backend Setup**
-```bash
-# Install dependencies
 pip install -r requirements.txt
 
-# Set up environment variables
+# Configure environment
 cp config/.env.example .env
-# Edit .env with your Gemini API key and other configurations
+# Add your GEMINI_API_KEY to .env
 
-# Run the main application
+# Run the system
 python main.py
 ```
 
-3. **Frontend Setup** (Optional - Web Dashboard)
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-4. **Access the Application**
-```
-Main API Server: http://localhost:8000
-Frontend Dashboard: http://localhost:3000
-API Documentation: http://localhost:8000/docs
-```
-
-### 🧪 **Testing & Development**
+### 🧪 **Verify Installation**
 
 ```bash
-# Run comprehensive test suite
+# Test the complete system
 python tests/run_all_tests.py
 
-# Run specific test categories
-python -m pytest tests/working/          # Working implementations
-python -m pytest tests/integration/     # Integration tests
-python -m pytest tests/dashboard/       # Dashboard tests
-
-# Test individual agricultural agents
-python tests/test_market_timing_agent.py
+# Test individual components
+python tests/test_agriculture_agents.py
 python tests/test_satellite_integration.py
-
-# Run development demos
-python scripts/demos/satellite_demo.py
-python scripts/demos/simple_agent_demo.py
-python scripts/demos/live_dashboard_demo.py
-
-# Validation scripts for satellite-enhanced agents
-python scripts/validate_finance_agent.py
-python scripts/validate_harvest_agent.py
-python scripts/validate_market_agent.py
 ```
+
+**🌐 Access Points:**
+- Main API: http://localhost:8000
+- Documentation: http://localhost:8000/docs
+- Health Check: http://localhost:8000/health
 
 ### 📁 **Project Structure**
 
@@ -211,23 +208,16 @@ Multi-Agent-Agriculture-Systems/
 │   ├── services/                 # Satellite & WebSocket services
 │   └── workflows/                # Agent orchestration
 ├── tests/                        # Comprehensive test suite
-│   ├── working/                  # Verified working tests
-│   ├── integration/              # Integration tests
-│   └── dashboard/                # Dashboard tests
 ├── docs/                         # Documentation & guides
 ├── frontend/                     # React web dashboard
 ├── scripts/                      # Utility and demo scripts
-│   ├── demos/                    # Working demonstrations
-│   └── utils/                    # Development utilities
 ├── config/                       # Configuration files
 ├── docker/                       # Docker configuration
-├── examples/                     # Usage examples
-├── data/                         # Data storage
-├── logs/                         # Application logs
 ├── main.py                       # Main application entry point
-├── requirements.txt              # Python dependencies
-└── setup.py                     # Package configuration
+└── requirements.txt              # Python dependencies
 ```
+
+> **📖 For complete structure details, see [Getting Started Guide](docs/GETTING_STARTED.md)**
 
 ---
 
