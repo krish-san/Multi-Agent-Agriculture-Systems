@@ -5,6 +5,7 @@ import DashboardPage from "./components/DashboardPage";
 import WorkflowsPage from "./components/WorkflowsPage";
 import ReportsPage from "./components/ReportsPage";
 import StatisticsPage from "./components/StatisticsPage";
+import DemoPage from "./pages/DemoPage";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
       {
         path: "statistics",
         element: <StatisticsPage />,
+      },
+      {
+        path: "demo",
+        element: <DemoPage />,
       },
     ],
   },

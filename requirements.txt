@@ -12,6 +12,7 @@ psycopg2-binary>=2.9.0
 fastapi>=0.100.0
 uvicorn>=0.20.0
 websockets>=12.0
+pydantic>=2.5.0
 
 # My monitoring tools
 prometheus-client>=0.20.0
@@ -28,7 +29,6 @@ mypy>=1.8.0
 docker>=7.0.0
 
 # My utilities
-pydantic>=2.5.0
 python-dotenv>=1.0.0
 aiofiles>=24.0.0
 httpx>=0.27.0

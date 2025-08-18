@@ -180,6 +180,16 @@ cp config/.env.example .env
 # Run the system
 python main.py
 ```
+# Run the Demo Api
+python simple_demo_api.py
+
+# Run the Dashboard
+
+Multi-Agent-Agriculture-Systems/frontend (main)
+
+npm install
+
+$ npm run dev
 
 ### 🧪 **Verify Installation**
 
