@@ -31,3 +31,9 @@ node_modules/
 # Task files
 # tasks.json
 # tasks/ 
+# Python bytecode files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
