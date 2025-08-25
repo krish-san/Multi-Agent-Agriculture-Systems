@@ -2,6 +2,8 @@
 
 > **Revolutionizing Indian Agriculture with AI and Satellite Intelligence**
 
+wsl -d Ubuntu for redis
+
 [![Status](https://img.shields.io/badge/Status-Active%20Development-green.svg)](https://github.com/akv2011/Multi-Agent-Agriculture-Systems)
 [![Progress](https://img.shields.io/badge/Progress-65%25%20Complete-blue.svg)](https://github.com/akv2011/Multi-Agent-Agriculture-Systems)
 [![Agents](https://img.shields.io/badge/Agents-5%2F7%20Satellite%20Enhanced-brightgreen.svg)](https://github.com/akv2011/Multi-Agent-Agriculture-Systems)

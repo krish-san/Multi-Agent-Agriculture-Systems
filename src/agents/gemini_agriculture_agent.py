@@ -69,6 +69,7 @@ class GeminiAgricultureAgent:
         
         # Agent configuration
         self.agent_id = "gemini_agriculture_agent"
+        self.agent_name = "Gemini Agriculture Expert"
         self.model_name = "gemini-2.5-flash"  # Latest recommended model
         self.capabilities = [
             AgricultureCapability.CROP_RECOMMENDATION,
@@ -85,51 +86,24 @@ class GeminiAgricultureAgent:
         logger.info(f"✓ Gemini Agriculture Agent initialized with model: {self.model_name}")
     
     def _create_agriculture_system_prompt(self) -> str:
-        """Create comprehensive system instructions for agriculture domain"""
+        """Create simple, effective system instructions for multilingual agriculture support"""
         
-        return """You are an expert agricultural advisor AI assistant with deep knowledge of:
+        return """You are an expert agricultural advisor for Indian farmers.
 
-CORE EXPERTISE:
-- Crop science, agronomy, and plant pathology
-- Integrated Pest Management (IPM) strategies  
-- Precision irrigation and water management
-- Soil health and nutrient management
-- Indian agricultural practices and regional variations
-- Climate-smart agriculture techniques
-- Sustainable farming practices
+CAPABILITIES:
+- Expert knowledge of Indian agriculture, crops, pests, irrigation, and farming practices
+- Understand multiple languages: Hindi, English, and mixed Hindi-English (Hinglish)
+- Respond in the same language the farmer uses
+- Provide practical, cost-effective solutions
 
-REGIONAL FOCUS:
-- Primary focus on Indian agriculture (all states and territories)
-- Understanding of diverse agro-climatic zones
-- Knowledge of local crop varieties and traditional practices
-- Awareness of government schemes and policies
+GUIDELINES:
+- Give simple, actionable advice that farmers can implement
+- Consider Indian climate, soil, and agricultural conditions
+- Suggest both traditional and modern farming techniques
+- Keep responses helpful and farmer-friendly
+- Focus on practical solutions over complex theory
 
-LANGUAGE CAPABILITIES:
-- Fluent in English and Hindi
-- Can understand and respond to code-mixed queries (Hinglish)
-- Technical terms in both languages
-
-RESPONSE GUIDELINES:
-1. Provide scientifically accurate, evidence-based advice
-2. Consider local conditions (soil, climate, water availability)
-3. Suggest sustainable and cost-effective solutions
-4. Include both traditional wisdom and modern techniques
-5. Explain technical concepts in simple, farmer-friendly language
-6. Provide specific, actionable recommendations
-7. Consider economic constraints of small and marginal farmers
-
-SAFETY CONSIDERATIONS:
-- Always recommend safe use of pesticides and fertilizers
-- Emphasize organic and biological alternatives when possible
-- Warn about environmental impacts
-- Suggest proper protective equipment for chemical applications
-
-OUTPUT FORMAT:
-- Structure responses with clear headings
-- Provide step-by-step instructions where applicable
-- Include timing recommendations (seasons, growth stages)
-- Mention approximate costs when relevant
-- Cite specific varieties, products, or techniques by name"""
+LANGUAGE: Always respond in the same language as the farmer's question. If they ask in Hindi, respond in Hindi. If they ask in English, respond in English. If they mix languages, respond naturally."""
 
     async def process_query(self, query: AgricultureQuery) -> AgentResponse:
         """
@@ -189,12 +163,11 @@ OUTPUT FORMAT:
             # Return error response
             return AgentResponse(
                 agent_id=self.agent_id,
+                agent_name=self.agent_name,
                 query_id=query.query_id,
-                status="error",
-                confidence=0.0,
                 response_text=f"Error processing your agriculture query: {str(e)}",
+                confidence_score=0.0,
                 recommendations=[],
-                processing_time=0.0,
                 metadata={
                     "error": str(e),
                     "model": self.model_name
@@ -202,51 +175,39 @@ OUTPUT FORMAT:
             )
     
     def _enhance_query_with_context(self, query: AgricultureQuery) -> str:
-        """Enhance the user query with relevant context for better Gemini responses"""
+        """Create a simple, effective prompt that leverages Gemini's native multilingual capabilities"""
         
-        enhanced_parts = []
-        
-        # Add user query
-        enhanced_parts.append(f"FARMER'S QUESTION: {query.query_text}")
-        
-        # Add language context
-        if query.query_language == Language.HINDI:
-            enhanced_parts.append("LANGUAGE: Please respond in Hindi (Devanagari script)")
-        elif query.query_language == Language.MIXED:
-            enhanced_parts.append("LANGUAGE: User query is in Hinglish (mixed Hindi-English). Respond accordingly.")
-        
-        # Add location context if available
-        if query.location:
-            enhanced_parts.append(f"LOCATION: {query.location}")
-        
-        # Add farm profile context if available
+        # Simple agricultural context prompt that works in any language
+        prompt = f"""You are an expert agricultural advisor helping Indian farmers. Please provide practical, actionable advice.
+
+Farmer's Question: {query.query_text}
+
+Please respond in the same language as the question. If the farmer asks in Hindi, respond in Hindi. If they ask in English, respond in English. If they mix languages (Hinglish), you can respond accordingly.
+
+Focus on:
+- Practical, implementable solutions
+- Indian agricultural context
+- Cost-effective methods
+- Seasonal considerations (current month: {datetime.now().strftime('%B')})"""
+
+        # Add farm context if available
         if query.farm_profile:
-            farm_context = []
+            context_details = []
             if query.farm_profile.farm_size:
-                farm_context.append(f"Farm size: {query.farm_profile.farm_size} hectares")
+                context_details.append(f"Farm size: {query.farm_profile.farm_size} hectares")
             if query.farm_profile.soil_type:
-                farm_context.append(f"Soil type: {query.farm_profile.soil_type}")
+                context_details.append(f"Soil type: {query.farm_profile.soil_type}")
             if query.farm_profile.location:
-                farm_context.append(f"Location: {query.farm_profile.location}")
-            if query.farm_profile.irrigation_available is not None:
-                irrigation_status = "available" if query.farm_profile.irrigation_available else "not available"
-                farm_context.append(f"Irrigation: {irrigation_status}")
+                context_details.append(f"Location: {query.farm_profile.location}")
             
-            if farm_context:
-                enhanced_parts.append(f"FARM DETAILS: {', '.join(farm_context)}")
+            if context_details:
+                prompt += f"\n\nFarm Context: {', '.join(context_details)}"
         
-        # Add seasonal context
-        current_month = datetime.now().strftime("%B")
-        enhanced_parts.append(f"CURRENT SEASON: {current_month} (consider seasonal relevance)")
-        
-        # Add specific instructions based on query domain
-        domain_instructions = {
-            QueryDomain.CROP_SELECTION: "Focus on crop variety recommendations, suitability analysis, and yield expectations.",
-            QueryDomain.PEST_MANAGEMENT: "Provide pest identification, damage assessment, and treatment recommendations (organic preferred).",
-            QueryDomain.IRRIGATION: "Analyze water requirements, irrigation scheduling, and water-efficient techniques.",
-            QueryDomain.FINANCE_POLICY: "Explain government schemes, loan procedures, and financial planning for farmers.",
-            QueryDomain.MARKET_TIMING: "Provide market analysis, price trends, and optimal selling timing."
-        }
+        # Add location if available
+        if query.location:
+            prompt += f"\nLocation: {query.location}"
+            
+        return prompt
         
         if hasattr(query, 'query_domain') and query.query_domain in domain_instructions:
             enhanced_parts.append(f"FOCUS AREA: {domain_instructions[query.query_domain]}")
@@ -278,19 +239,18 @@ OUTPUT FORMAT:
             # Add safety ratings if available
             if hasattr(gemini_response, 'candidates') and gemini_response.candidates:
                 candidate = gemini_response.candidates[0]
-                if hasattr(candidate, 'safety_ratings'):
+                if hasattr(candidate, 'safety_ratings') and candidate.safety_ratings:
                     metadata["safety_ratings"] = {
                         rating.category: rating.probability for rating in candidate.safety_ratings
                     }
             
             return AgentResponse(
                 agent_id=self.agent_id,
+                agent_name=self.agent_name,
                 query_id=query.query_id,
-                status="completed",
-                confidence=confidence,
                 response_text=response_text,
+                confidence_score=confidence,
                 recommendations=recommendations,
-                processing_time=processing_time,
                 metadata=metadata
             )
             
@@ -298,16 +258,15 @@ OUTPUT FORMAT:
             logger.error(f"Error parsing Gemini response: {e}")
             return AgentResponse(
                 agent_id=self.agent_id,
+                agent_name=self.agent_name,
                 query_id=query.query_id,
-                status="error",
-                confidence=0.0,
                 response_text="Error parsing the AI response",
+                confidence_score=0.0,
                 recommendations=[],
-                processing_time=processing_time,
                 metadata={"error": str(e)}
             )
     
-    def _extract_recommendations(self, response_text: str) -> List[str]:
+    def _extract_recommendations(self, response_text: str) -> List[Dict[str, Any]]:
         """Extract actionable recommendations from Gemini response"""
         
         recommendations = []
@@ -321,18 +280,28 @@ OUTPUT FORMAT:
         # Split response into sentences
         sentences = response_text.replace('\n', ' ').split('.')
         
-        for sentence in sentences:
+        for i, sentence in enumerate(sentences):
             sentence = sentence.strip()
             if len(sentence) > 20:  # Filter out very short sentences
                 # Check if sentence contains recommendation indicators
                 if any(marker.lower() in sentence.lower() for marker in recommendation_markers):
-                    recommendations.append(sentence)
+                    recommendations.append({
+                        "id": f"rec_{i+1}",
+                        "text": sentence,
+                        "type": "suggestion",
+                        "priority": "medium"
+                    })
                 
                 # Check for numbered/bulleted recommendations
                 if sentence.startswith(('1.', '2.', '3.', '•', '-', '*')):
                     clean_rec = sentence.lstrip('123456789.-•* ')
                     if len(clean_rec) > 15:
-                        recommendations.append(clean_rec)
+                        recommendations.append({
+                            "id": f"rec_{i+1}",
+                            "text": clean_rec,
+                            "type": "action_item",
+                            "priority": "high"
+                        })
         
         # Limit to top 10 recommendations to avoid overwhelming
         return recommendations[:10]

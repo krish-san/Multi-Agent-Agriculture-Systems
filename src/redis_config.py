@@ -6,14 +6,26 @@ from typing import Optional
 # from langgraph.checkpoint.redis import RedisSaver
 import logging
 
+# Import local storage for demo mode
+try:
+    from .local_storage import LocalStorageAdapter, get_demo_storage, get_demo_checkpoint_saver
+except ImportError:
+    from local_storage import LocalStorageAdapter, get_demo_storage, get_demo_checkpoint_saver
+
 logger = logging.getLogger(__name__)
 
 
 class RedisConfig:
     
     def __init__(self):
-        # Default configuration for Redis Cloud
-        # In production, these would come from environment variables
+        # Check if we're in demo mode (default for single user)
+        self.demo_mode = os.getenv('DEMO_MODE', 'true').lower() == 'true'
+        
+        if self.demo_mode:
+            logger.info("Running in DEMO MODE - using local storage instead of Redis")
+            return
+        
+        # Redis configuration (only used if demo_mode is False)
         self.redis_host = os.getenv('REDIS_HOST', 'localhost')
         self.redis_port = int(os.getenv('REDIS_PORT', 6379))
         self.redis_password = os.getenv('REDIS_PASSWORD', None)
@@ -29,6 +41,9 @@ class RedisConfig:
         logger.info(f"Redis config initialized - Host: {self.redis_host}:{self.redis_port}")
     
     def get_connection_params(self) -> dict:
+        if self.demo_mode:
+            return {}  # No connection params needed for local storage
+        
         params = {
             'host': self.redis_host,
             'port': self.redis_port,
@@ -57,10 +72,20 @@ class RedisConnectionManager:
         self._client = None
         self._saver = None
         
-        logger.info("Redis connection manager initialized")
+        if self.config.demo_mode:
+            logger.info("Demo mode: Using local storage instead of Redis")
+        else:
+            logger.info("Production mode: Redis connection manager initialized")
     
-    def get_client(self) -> redis.Redis:
+    def get_client(self):
         if self._client is None:
+            # Use local storage in demo mode
+            if self.config.demo_mode:
+                logger.info("Using local storage adapter for demo")
+                self._client = get_demo_storage()
+                return self._client
+            
+            # Original Redis logic for production
             try:
                 connection_params = self.config.get_connection_params()
                 self._client = redis.Redis(**connection_params)
@@ -71,22 +96,29 @@ class RedisConnectionManager:
                 
             except redis.ConnectionError as e:
                 logger.error(f"Failed to connect to Redis: {str(e)}")
-                # Fall back to a mock client for development
-                logger.warning("Using mock Redis client for development")
-                self._client = MockRedisClient()
+                # Fall back to local storage
+                logger.warning("Using local storage fallback")
+                self._client = get_demo_storage()
             except Exception as e:
                 logger.error(f"Unexpected error connecting to Redis: {str(e)}")
-                self._client = MockRedisClient()
+                self._client = get_demo_storage()
         
         return self._client
     
     def get_saver(self):
         if self._saver is None:
+            # Use memory saver in demo mode
+            if self.config.demo_mode:
+                logger.info("Using demo checkpoint saver")
+                self._saver = get_demo_checkpoint_saver()
+                return self._saver
+            
+            # Original Redis saver logic for production
             try:
                 client = self.get_client()
                 
                 # Only create RedisSaver if we have a real Redis connection
-                if not isinstance(client, MockRedisClient):
+                if hasattr(client, 'ping') and not hasattr(client, 'storage'):  # Real Redis client
                     try:
                         # Try to import and use RedisSaver
                         from langgraph.checkpoint.redis import RedisSaver
@@ -94,20 +126,17 @@ class RedisConnectionManager:
                         logger.info("RedisSaver initialized successfully")
                     except ImportError:
                         logger.warning("RedisSaver not available, using memory fallback")
-                        from langgraph.checkpoint.memory import MemorySaver
-                        self._saver = MemorySaver()
+                        self._saver = get_demo_checkpoint_saver()
                 else:
-                    # Use memory saver as fallback
-                    from langgraph.checkpoint.memory import MemorySaver
-                    self._saver = MemorySaver()
-                    logger.warning("Using MemorySaver fallback instead of Redis")
+                    # Use demo saver as fallback
+                    self._saver = get_demo_checkpoint_saver()
+                    logger.warning("Using demo checkpoint saver")
                     
             except Exception as e:
-                logger.error(f"Failed to initialize RedisSaver: {str(e)}")
-                # Fallback to memory saver
-                from langgraph.checkpoint.memory import MemorySaver
-                self._saver = MemorySaver()
-                logger.warning("Using MemorySaver fallback due to Redis initialization failure")
+                logger.error(f"Failed to initialize saver: {str(e)}")
+                # Fallback to demo saver
+                self._saver = get_demo_checkpoint_saver()
+                logger.warning("Using demo checkpoint saver due to initialization failure")
         
         return self._saver
     
@@ -126,15 +155,28 @@ class RedisConnectionManager:
             return False
     
     def get_connection_info(self) -> dict:
-        return {
-            'host': self.config.redis_host,
-            'port': self.config.redis_port,
-            'database': self.config.redis_db,
-            'ssl_enabled': self.config.redis_ssl,
-            'password_protected': bool(self.config.redis_password),
-            'connected': self.test_connection(),
-            'client_type': type(self._client).__name__ if self._client else 'None'
-        }
+        if self.config.demo_mode:
+            return {
+                'host': 'local_storage',
+                'port': 'N/A',
+                'database': 'local_files',
+                'ssl_enabled': False,
+                'password_protected': False,
+                'connected': True,
+                'client_type': 'LocalStorageAdapter',
+                'mode': 'demo'
+            }
+        else:
+            return {
+                'host': self.config.redis_host,
+                'port': self.config.redis_port,
+                'database': self.config.redis_db,
+                'ssl_enabled': self.config.redis_ssl,
+                'password_protected': bool(self.config.redis_password),
+                'connected': self.test_connection(),
+                'client_type': type(self._client).__name__ if self._client else 'None',
+                'mode': 'production'
+            }
 
 
 class MockRedisClient:
@@ -193,3 +235,43 @@ def get_redis_saver():
 
 def get_redis_client():
     return redis_manager.get_client()
+
+
+def test_storage_connection() -> bool:
+    """Test storage connection (Redis or local storage)"""
+    try:
+        client = get_redis_client()
+        result = client.ping()
+        if result:
+            logger.info("✅ Storage connection successful")
+            return True
+        else:
+            logger.warning("⚠️ Storage ping returned False")
+            return False
+    except Exception as e:
+        logger.error(f"❌ Storage connection failed: {e}")
+        return False
+
+
+if __name__ == "__main__":
+    # Test the storage system
+    print("🧪 Testing Storage System...")
+    
+    # Test connection
+    if test_storage_connection():
+        print("✅ Storage system working!")
+        
+        # Test basic operations
+        client = get_redis_client()
+        client.set("demo_test", "agriculture_system_ready")
+        value = client.get("demo_test")
+        print(f"✅ Test value: {value}")
+        
+        # Test saver
+        saver = get_redis_saver()
+        print(f"✅ Checkpoint saver: {type(saver).__name__}")
+        
+    else:
+        print("❌ Storage system failed")
+        
+    print("🌾 Agriculture system ready for demo!")
